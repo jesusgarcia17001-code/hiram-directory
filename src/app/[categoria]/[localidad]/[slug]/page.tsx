@@ -1,0 +1,241 @@
+import React from "react";
+import type { Metadata } from "next";
+import Link from "next/link";
+import { notFound } from "next/navigation";
+import { brand } from "@/config/brand";
+import { site } from "@/config/site";
+import { Header } from "@/components/layout/Header";
+import { Breadcrumbs } from "@/components/directory/Breadcrumbs";
+import { ContactBox } from "@/components/directory/ContactBox";
+import { getApprovedProfessionalBySlug } from "@/services/directory";
+import { recordProfileVisit } from "@/services/metrics";
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ categoria: string; localidad: string; slug: string }>;
+}): Promise<Metadata> {
+  const { categoria, localidad, slug } = await params;
+  const result = await getApprovedProfessionalBySlug(slug);
+
+  if (
+    !result ||
+    result.category?.listing_slug !== categoria ||
+    result.locality?.slug !== localidad
+  ) {
+    return {
+      title: "Profesional no encontrado",
+    };
+  }
+
+  const { professional, locality, category } = result;
+  const title = `${professional.business_name} - ${category.singular_label} en ${locality.name}, Anzoátegui | ${brand.name}`;
+  const description = professional.description
+    ? professional.description.slice(0, 155)
+    : `Contacta a ${professional.business_name}, especialista en ${category.singular_label.toLowerCase()} en ${locality.name}, estado Anzoátegui.`;
+  const canonical = `${site.url}/${category.listing_slug}/${locality.slug}/${professional.slug}`;
+
+  return {
+    title,
+    description,
+    alternates: {
+      canonical,
+    },
+    openGraph: {
+      title,
+      description,
+      url: canonical,
+      siteName: brand.name,
+      locale: "es_VE",
+      type: "profile",
+    },
+  };
+}
+
+export default async function ProfessionalProfilePage({
+  params,
+}: {
+  params: Promise<{ categoria: string; localidad: string; slug: string }>;
+}) {
+  const { categoria, localidad, slug } = await params;
+  const result = await getApprovedProfessionalBySlug(slug);
+
+  // Validación estricta de la jerarquía de URL
+  if (
+    !result ||
+    !result.locality ||
+    !result.category ||
+    result.category.listing_slug !== categoria ||
+    result.locality.slug !== localidad
+  ) {
+    notFound();
+  }
+
+  const { professional, locality, category } = result;
+
+  // Registrar visita única del perfil en el servidor (Fase 4 - Cuota y Métricas)
+  await recordProfileVisit(professional.id);
+
+  // Esquema estructurado JSON-LD LocalBusiness para Google
+  // REGLA CLAUDE.md: Sin reseñas ni valoraciones inventadas
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "LocalBusiness",
+    name: professional.business_name,
+    description:
+      professional.description ||
+      `${category.singular_label} en ${locality.name}, Anzoátegui`,
+    url: `${site.url}/${category.listing_slug}/${locality.slug}/${professional.slug}`,
+    address: {
+      "@type": "PostalAddress",
+      addressLocality: locality.name,
+      addressRegion: "Anzoátegui",
+      addressCountry: "VE",
+    },
+  };
+
+  const listUrl = `/${category.listing_slug}/${locality.slug}`;
+
+  return (
+    <div className="min-h-screen flex flex-col bg-background">
+      <Header />
+
+      <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+        />
+
+        {/* Migas de Pan */}
+        <Breadcrumbs
+          items={[
+            { name: "Inicio", url: "/" },
+            { name: category.plural_label, url: `/${category.listing_slug}` },
+            { name: locality.name, url: listUrl },
+            {
+              name: professional.business_name,
+              url: `/${category.listing_slug}/${locality.slug}/${professional.slug}`,
+            },
+          ]}
+        />
+
+        {/* Enlace de Retorno a la Lista de la Ciudad */}
+        <div>
+          <Link
+            href={listUrl}
+            className="inline-flex items-center gap-1.5 text-xs font-semibold text-brand-primary hover:text-brand-primary-hover hover:underline transition-colors"
+          >
+            ← Ver todos los {category.plural_label.toLowerCase()} en {locality.name}
+          </Link>
+        </div>
+
+        {/* Estructura Principal en 2 Columnas */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          {/* Columna Izquierda: Información del Profesional */}
+          <div className="lg:col-span-2 space-y-6">
+            {/* Cabecera del Perfil */}
+            <div className="bg-brand-surface p-6 sm:p-8 rounded-2xl border border-brand-border shadow-xs space-y-4">
+              <div className="flex items-center flex-wrap gap-2">
+                <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-brand-surface-muted text-brand-text-muted border border-brand-border">
+                  {professional.provider_type === "company"
+                    ? "🏢 Empresa / Taller"
+                    : "👤 Técnico Profesional"}
+                </span>
+
+                <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+                  Verificado por Hiram
+                </span>
+
+                {professional.is_featured && (
+                  <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-bold bg-amber-50 text-amber-700 border border-amber-200">
+                    ⭐ Destacado
+                  </span>
+                )}
+              </div>
+
+              <h1 className="text-2xl sm:text-3xl font-black text-brand-text-primary tracking-tight">
+                {professional.business_name}
+              </h1>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs text-brand-text-muted pt-2 border-t border-brand-border">
+                <div className="flex items-center gap-2">
+                  <span className="text-base">📍</span>
+                  <span>
+                    Base: <strong className="text-brand-text-primary">{locality.name}</strong>, Estado Anzoátegui
+                  </span>
+                </div>
+
+                <div className="flex items-center gap-2">
+                  <span className="text-base">🛠️</span>
+                  <span>
+                    Rubro: <strong className="text-brand-text-primary">{category.singular_label}</strong>
+                  </span>
+                </div>
+
+                {professional.experience_years !== null && professional.experience_years > 0 && (
+                  <div className="flex items-center gap-2">
+                    <span className="text-base">⏱️</span>
+                    <span>
+                      Experiencia: <strong className="text-brand-text-primary">{professional.experience_years} años</strong>
+                    </span>
+                  </div>
+                )}
+
+                <div className="flex items-center gap-2">
+                  <span className="text-base">📋</span>
+                  <span>
+                    Disponibilidad: <strong className="text-brand-text-primary capitalize">{professional.availability === "available" ? "Disponible" : professional.availability}</strong>
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            {/* Descripción del Servicio */}
+            <div className="bg-brand-surface p-6 sm:p-8 rounded-2xl border border-brand-border shadow-xs space-y-3">
+              <h2 className="text-base font-bold text-brand-text-primary flex items-center gap-2">
+                <span>📄</span> Descripción y Especialidad
+              </h2>
+              <div className="text-sm text-brand-text-muted leading-relaxed whitespace-pre-line">
+                {professional.description || (
+                  <p className="italic text-slate-400">
+                    Este prestador no ha agregado una descripción detallada de sus servicios.
+                  </p>
+                )}
+              </div>
+            </div>
+
+            {/* Zonas de Servicio en Anzoátegui */}
+            {professional.service_areas && professional.service_areas.length > 0 && (
+              <div className="bg-brand-surface p-6 sm:p-8 rounded-2xl border border-brand-border shadow-xs space-y-3">
+                <h2 className="text-base font-bold text-brand-text-primary flex items-center gap-2">
+                  <span>🗺️</span> Zonas de Cobertura y Atención a Domicilio
+                </h2>
+                <div className="flex items-center flex-wrap gap-2">
+                  {professional.service_areas.map((area) => (
+                    <span
+                      key={area}
+                      className="px-3 py-1 rounded-xl text-xs font-semibold bg-brand-surface-muted text-brand-text-primary border border-brand-border"
+                    >
+                      {area}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* Columna Derecha: Tarjeta de Contacto Protegida */}
+          <div>
+            <ContactBox
+              professionalId={professional.id}
+              professionalName={professional.business_name}
+              categoryLabel={category.singular_label}
+              contactsEnabled={professional.contacts_enabled}
+            />
+          </div>
+        </div>
+      </main>
+    </div>
+  );
+}

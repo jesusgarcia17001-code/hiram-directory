@@ -1,0 +1,55 @@
+@import "tailwindcss";
+
+:root {
+  --background: #ffffff;
+  --foreground: #0f172a;
+
+  /* Variables de marca (HIRAM Directory) */
+  --brand-primary: #1d4ed8;
+  --brand-primary-hover: #1e40af;
+  --brand-secondary: #0f172a;
+  --brand-accent: #f59e0b;
+  --brand-success: #16a34a;
+  --brand-danger: #dc2626;
+  --brand-surface: #ffffff;
+  --brand-surface-muted: #f8fafc;
+  --brand-text-primary: #0f172a;
+  --brand-text-muted: #64748b;
+  --brand-border: #e2e8f0;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+
+  --color-brand-primary: var(--brand-primary);
+  --color-brand-primary-hover: var(--brand-primary-hover);
+  --color-brand-secondary: var(--brand-secondary);
+  --color-brand-accent: var(--brand-accent);
+  --color-brand-success: var(--brand-success);
+  --color-brand-danger: var(--brand-danger);
+  --color-brand-surface: var(--brand-surface);
+  --color-brand-surface-muted: var(--brand-surface-muted);
+  --color-brand-text-primary: var(--brand-text-primary);
+  --color-brand-text-muted: var(--brand-text-muted);
+  --color-brand-border: var(--brand-border);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background: #090d16;
+    --foreground: #f1f5f9;
+    --brand-surface: #0f172a;
+    --brand-surface-muted: #1e293b;
+    --brand-text-primary: #f8fafc;
+    --brand-text-muted: #94a3b8;
+    --brand-border: #334155;
+  }
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+}
