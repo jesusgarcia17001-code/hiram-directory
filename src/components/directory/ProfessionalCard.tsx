@@ -1,6 +1,8 @@
 import React from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { PublicProfessionalSummary } from "@/services/directory";
+import { getPublicMediaUrl } from "@/lib/storage-public";
 
 interface ProfessionalCardProps {
   professional: PublicProfessionalSummary;
@@ -13,44 +15,74 @@ export function ProfessionalCard({
 }: ProfessionalCardProps) {
   const localitySlug = professional.locality_slug || "anzoategui";
   const profileUrl = `/${categoryListingSlug}/${localitySlug}/${professional.slug}`;
+  const logoUrl = getPublicMediaUrl(professional.logo_path);
+
+  const getInitials = (name: string) => {
+    return name
+      .split(" ")
+      .filter(Boolean)
+      .slice(0, 2)
+      .map((w) => w[0].toUpperCase())
+      .join("");
+  };
 
   return (
     <article className="bg-brand-surface rounded-2xl border border-brand-border p-6 shadow-xs hover:shadow-md transition-shadow flex flex-col justify-between gap-4">
-      <div className="space-y-3">
-        {/* Etiquetas de tipo y destacado */}
-        <div className="flex items-center justify-between flex-wrap gap-2">
-          <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-brand-surface-muted text-brand-text-muted border border-brand-border">
-            {professional.provider_type === "company"
-              ? "🏢 Empresa o Taller"
-              : "👤 Técnico Profesional"}
-          </span>
+      <div className="space-y-4">
+        {/* Cabecera con Logo y Etiquetas */}
+        <div className="flex items-start justify-between gap-3">
+          <div className="flex items-center gap-3">
+            {/* Logo o Avatar Neutro */}
+            <div className="relative w-12 h-12 rounded-xl overflow-hidden border border-brand-border bg-slate-100 flex items-center justify-center shrink-0 shadow-2xs">
+              {logoUrl ? (
+                <Image
+                  src={logoUrl}
+                  alt={`${professional.business_name} - ${categoryListingSlug}`}
+                  fill
+                  sizes="48px"
+                  className="object-cover"
+                  unoptimized
+                />
+              ) : (
+                <span className="text-brand-primary font-bold text-sm">
+                  {getInitials(professional.business_name) || "H"}
+                </span>
+              )}
+            </div>
+
+            <div>
+              <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-brand-surface-muted text-brand-text-muted border border-brand-border">
+                {professional.provider_type === "company"
+                  ? "🏢 Empresa o Taller"
+                  : "👤 Técnico Profesional"}
+              </span>
+
+              <h3 className="text-base font-bold text-brand-text-primary hover:text-brand-primary transition-colors mt-1">
+                <Link href={profileUrl}>{professional.business_name}</Link>
+              </h3>
+            </div>
+          </div>
 
           {professional.is_featured && (
-            <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-bold bg-amber-50 text-amber-700 border border-amber-200">
+            <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-bold bg-amber-50 text-amber-700 border border-amber-200 shrink-0">
               ⭐ Destacado
             </span>
           )}
         </div>
 
-        {/* Nombre Comercial y Ciudad */}
-        <div>
-          <h3 className="text-lg font-bold text-brand-text-primary hover:text-brand-primary transition-colors">
-            <Link href={profileUrl}>{professional.business_name}</Link>
-          </h3>
+        {/* Ciudad y Experiencia */}
+        <div className="flex items-center gap-3 text-xs text-brand-text-muted flex-wrap">
+          {professional.locality_name && (
+            <span className="flex items-center gap-1">
+              📍 {professional.locality_name}, Anzoátegui
+            </span>
+          )}
 
-          <div className="flex items-center gap-3 text-xs text-brand-text-muted mt-1 flex-wrap">
-            {professional.locality_name && (
-              <span className="flex items-center gap-1">
-                📍 {professional.locality_name}, Anzoátegui
-              </span>
-            )}
-
-            {professional.experience_years !== null && professional.experience_years > 0 && (
-              <span className="flex items-center gap-1">
-                ⏱️ {professional.experience_years} años de experiencia
-              </span>
-            )}
-          </div>
+          {professional.experience_years !== null && professional.experience_years > 0 && (
+            <span className="flex items-center gap-1">
+              ⏱️ {professional.experience_years} años de experiencia
+            </span>
+          )}
         </div>
 
         {/* Extracto de Descripción */}

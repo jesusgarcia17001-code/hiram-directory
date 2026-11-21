@@ -514,6 +514,90 @@ export interface Database {
         };
         Relationships: [];
       };
+      services: {
+        Row: {
+          id: string;
+          category_id: string;
+          name: string;
+          slug: string;
+          is_active: boolean;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          category_id: string;
+          name: string;
+          slug: string;
+          is_active?: boolean;
+          created_at?: string;
+        };
+        Update: {
+          id?: string;
+          category_id?: string;
+          name?: string;
+          slug?: string;
+          is_active?: boolean;
+          created_at?: string;
+        };
+        Relationships: [];
+      };
+      professional_services: {
+        Row: {
+          id: string;
+          professional_id: string;
+          service_id: string | null;
+          name: string;
+          description: string | null;
+          is_active: boolean;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          professional_id: string;
+          service_id?: string | null;
+          name: string;
+          description?: string | null;
+          is_active?: boolean;
+          created_at?: string;
+        };
+        Update: {
+          id?: string;
+          professional_id?: string;
+          service_id?: string | null;
+          name?: string;
+          description?: string | null;
+          is_active?: boolean;
+          created_at?: string;
+        };
+        Relationships: [];
+      };
+      professional_photos: {
+        Row: {
+          id: string;
+          professional_id: string;
+          image_path: string;
+          caption: string | null;
+          sort_order: number;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          professional_id: string;
+          image_path: string;
+          caption?: string | null;
+          sort_order?: number;
+          created_at?: string;
+        };
+        Update: {
+          id?: string;
+          professional_id?: string;
+          image_path?: string;
+          caption?: string | null;
+          sort_order?: number;
+          created_at?: string;
+        };
+        Relationships: [];
+      };
     };
     Views: {
       professionals_public: {

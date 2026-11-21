@@ -6,6 +6,7 @@ export interface PublicProfessionalSummary {
   slug: string;
   business_name: string;
   description: string | null;
+  logo_path?: string | null;
   locality_id: string | null;
   locality_name?: string;
   locality_slug?: string;
@@ -116,7 +117,7 @@ export async function getApprovedProfessionalsByCategory(
   let query = supabase
     .from("professionals_public")
     .select(
-      "id, slug, business_name, description, locality_id, service_areas, experience_years, provider_type, is_featured, created_at"
+      "id, slug, business_name, description, logo_path, locality_id, service_areas, experience_years, provider_type, is_featured, created_at"
     )
     .in("id", profIds);
 
@@ -154,6 +155,7 @@ export async function getApprovedProfessionalsByCategory(
       slug: p.slug,
       business_name: p.business_name,
       description: p.description,
+      logo_path: p.logo_path,
       locality_id: p.locality_id,
       locality_name: loc?.name,
       locality_slug: loc?.slug,
@@ -175,7 +177,7 @@ export async function getApprovedProfessionalBySlug(slug: string) {
   const { data: prof } = await supabase
     .from("professionals_public")
     .select(
-      "id, slug, business_name, description, locality_id, service_areas, experience_years, working_hours, availability, created_at, provider_type, contacts_enabled, is_featured"
+      "id, slug, business_name, description, logo_path, locality_id, service_areas, experience_years, working_hours, availability, created_at, provider_type, contacts_enabled, is_featured"
     )
     .eq("slug", slug)
     .maybeSingle();
@@ -184,38 +186,46 @@ export async function getApprovedProfessionalBySlug(slug: string) {
     return null;
   }
 
-  // Localidad
-  let locality = null;
-  if (prof.locality_id) {
-    const { data: loc } = await supabase
-      .from("localities")
-      .select("id, name, slug")
-      .eq("id", prof.locality_id)
-      .maybeSingle();
-    locality = loc;
-  }
+  // Localidad, Categoría, Fotos de Galería y Servicios en paralelo
+  const [locRes, profCatRes, photosRes, servicesRes] = await Promise.all([
+    prof.locality_id
+      ? supabase.from("localities").select("id, name, slug").eq("id", prof.locality_id).maybeSingle()
+      : Promise.resolve({ data: null }),
+    supabase
+      .from("professional_categories")
+      .select("category_id")
+      .eq("professional_id", prof.id)
+      .limit(1)
+      .maybeSingle(),
+    supabase
+      .from("professional_photos")
+      .select("id, image_path, caption, sort_order")
+      .eq("professional_id", prof.id)
+      .order("sort_order", { ascending: true }),
+    supabase
+      .from("professional_services")
+      .select("id, name, description")
+      .eq("professional_id", prof.id)
+      .order("created_at", { ascending: true }),
+  ]);
 
-  // Categoría principal
   let category = null;
-  const { data: profCat } = await supabase
-    .from("professional_categories")
-    .select("category_id")
-    .eq("professional_id", prof.id)
-    .limit(1)
-    .maybeSingle();
-
-  if (profCat) {
+  if (profCatRes.data) {
     const { data: cat } = await supabase
       .from("categories")
       .select("id, name, slug, listing_slug, singular_label, plural_label")
-      .eq("id", profCat.category_id)
+      .eq("id", profCatRes.data.category_id)
       .maybeSingle();
     category = cat;
   }
 
   return {
-    professional: prof,
-    locality,
+    professional: {
+      ...prof,
+      photos: photosRes.data || [],
+      services: servicesRes.data || [],
+    },
+    locality: locRes.data,
     category,
   };
 }

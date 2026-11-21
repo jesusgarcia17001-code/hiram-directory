@@ -3,6 +3,10 @@ import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { ProfileForm } from "@/features/professionals/components/ProfileForm";
 import { getActiveLocalitiesGrouped } from "@/services/locations";
+import { getProfessionalPhotoLimit } from "@/features/professionals/media-actions";
+import { ProfileLogoUploader } from "@/components/professionals/ProfileLogoUploader";
+import { ProfileGalleryManager } from "@/components/professionals/ProfileGalleryManager";
+import { ProfileServicesManager } from "@/components/professionals/ProfileServicesManager";
 
 export default async function PanelPerfilPage() {
   const supabase = await createClient();
@@ -25,29 +29,61 @@ export default async function PanelPerfilPage() {
   const { data: prof } = await supabase
     .from("professionals")
     .select(
-      "id, provider_type, id_type, id_number, business_name, locality_id, description, experience_years, status"
+      "id, provider_type, id_type, id_number, business_name, logo_path, locality_id, description, experience_years, status"
     )
     .eq("owner_id", user!.id)
     .maybeSingle();
 
   let contacts = null;
   let categoryId: string | null = null;
+  let categoryName: string | undefined = undefined;
+  let photos: any[] = [];
+  let userServices: any[] = [];
+  let catalogServices: any[] = [];
+  let photoLimit = { maxPhotos: 3, planName: "Gratuito" };
 
   if (prof) {
-    const { data: cData } = await supabase
-      .from("professional_contacts")
-      .select("whatsapp_phone, phone")
-      .eq("professional_id", prof.id)
-      .maybeSingle();
-    contacts = cData;
+    const [cDataRes, catDataRes, photosRes, servicesRes, limitRes] = await Promise.all([
+      supabase
+        .from("professional_contacts")
+        .select("whatsapp_phone, phone")
+        .eq("professional_id", prof.id)
+        .maybeSingle(),
+      supabase
+        .from("professional_categories")
+        .select("category_id, categories (name)")
+        .eq("professional_id", prof.id)
+        .limit(1)
+        .maybeSingle(),
+      supabase
+        .from("professional_photos")
+        .select("id, image_path, caption, sort_order")
+        .eq("professional_id", prof.id)
+        .order("sort_order", { ascending: true }),
+      supabase
+        .from("professional_services")
+        .select("id, name, service_id")
+        .eq("professional_id", prof.id)
+        .order("created_at", { ascending: true }),
+      getProfessionalPhotoLimit(prof.id),
+    ]);
 
-    const { data: catData } = await supabase
-      .from("professional_categories")
-      .select("category_id")
-      .eq("professional_id", prof.id)
-      .limit(1)
-      .maybeSingle();
-    categoryId = catData?.category_id || null;
+    contacts = cDataRes.data;
+    categoryId = catDataRes.data?.category_id || null;
+    categoryName = (catDataRes.data?.categories as any)?.name;
+    photos = photosRes.data || [];
+    userServices = servicesRes.data || [];
+    photoLimit = limitRes;
+
+    if (categoryId) {
+      const { data: catSvcs } = await supabase
+        .from("services")
+        .select("id, name")
+        .eq("category_id", categoryId)
+        .eq("is_active", true)
+        .order("name", { ascending: true });
+      catalogServices = catSvcs || [];
+    }
   }
 
   const initialData = prof
@@ -68,7 +104,7 @@ export default async function PanelPerfilPage() {
     : null;
 
   return (
-    <div className="space-y-6 max-w-4xl mx-auto">
+    <div className="space-y-8 max-w-4xl mx-auto">
       {/* Encabezado y migas de pan */}
       <div>
         <nav className="flex items-center gap-2 text-xs text-brand-text-muted mb-2">
@@ -84,17 +120,44 @@ export default async function PanelPerfilPage() {
         </h1>
         <p className="text-sm text-brand-text-muted mt-1">
           {initialData?.id
-            ? "Actualiza la información de tus servicios, datos de contacto y especialidad."
+            ? "Actualiza tu fotografía de perfil, datos de contacto, especialidad, servicios y galería de trabajos."
             : "Completa la ficha técnica para que tu perfil sea evaluado y publicado en el directorio."}
         </p>
       </div>
 
-      {/* Formulario */}
+      {/* 1. FOTO DE PERFIL / LOGO (Solo si ya existe el perfil) */}
+      {initialData?.id && prof && (
+        <ProfileLogoUploader
+          initialLogoPath={prof.logo_path}
+          businessName={prof.business_name}
+        />
+      )}
+
+      {/* 2. FORMULARIO PRINCIPAL (Identificación, Especialidad, Ubicación, Contactos) */}
       <ProfileForm
         initialData={initialData}
         groupedLocalities={groupedLocalities}
         categories={categories || []}
       />
+
+      {/* 3. SERVICIOS DEL PROFESIONAL (Solo si ya existe el perfil) */}
+      {initialData?.id && (
+        <ProfileServicesManager
+          initialServices={userServices}
+          suggestedCatalogServices={catalogServices}
+          categoryName={categoryName}
+        />
+      )}
+
+      {/* 4. GALERÍA DE TRABAJOS CON LÍMITE DEL PLAN (Solo si ya existe el perfil) */}
+      {initialData?.id && prof && (
+        <ProfileGalleryManager
+          initialPhotos={photos}
+          maxPhotos={photoLimit.maxPhotos}
+          planName={photoLimit.planName}
+          businessName={prof.business_name}
+        />
+      )}
     </div>
   );
 }

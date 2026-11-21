@@ -1,6 +1,7 @@
 import React from "react";
 import type { Metadata } from "next";
 import Link from "next/link";
+import Image from "next/image";
 import { notFound } from "next/navigation";
 import { brand } from "@/config/brand";
 import { site } from "@/config/site";
@@ -9,6 +10,7 @@ import { Breadcrumbs } from "@/components/directory/Breadcrumbs";
 import { ContactBox } from "@/components/directory/ContactBox";
 import { getApprovedProfessionalBySlug } from "@/services/directory";
 import { recordProfileVisit } from "@/services/metrics";
+import { getPublicMediaUrl } from "@/lib/storage-public";
 
 export async function generateMetadata({
   params,
@@ -76,6 +78,17 @@ export default async function ProfessionalProfilePage({
   // Registrar visita única del perfil en el servidor (Fase 4 - Cuota y Métricas)
   await recordProfileVisit(professional.id);
 
+  const logoUrl = getPublicMediaUrl(professional.logo_path);
+
+  const getInitials = (name: string) => {
+    return name
+      .split(" ")
+      .filter(Boolean)
+      .slice(0, 2)
+      .map((w) => w[0].toUpperCase())
+      .join("");
+  };
+
   // Esquema estructurado JSON-LD LocalBusiness para Google
   // REGLA CLAUDE.md: Sin reseñas ni valoraciones inventadas
   const jsonLd = {
@@ -133,32 +146,54 @@ export default async function ProfessionalProfilePage({
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Columna Izquierda: Información del Profesional */}
           <div className="lg:col-span-2 space-y-6">
-            {/* Cabecera del Perfil */}
+            {/* Cabecera del Perfil con Foto/Logo */}
             <div className="bg-brand-surface p-6 sm:p-8 rounded-2xl border border-brand-border shadow-xs space-y-4">
-              <div className="flex items-center flex-wrap gap-2">
-                <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-brand-surface-muted text-brand-text-muted border border-brand-border">
-                  {professional.provider_type === "company"
-                    ? "🏢 Empresa / Taller"
-                    : "👤 Técnico Profesional"}
-                </span>
+              <div className="flex items-start gap-4 sm:gap-6">
+                {/* Logo o Avatar Neutro */}
+                <div className="relative w-16 h-16 sm:w-20 sm:h-20 rounded-2xl overflow-hidden border border-brand-border bg-slate-100 flex items-center justify-center shrink-0 shadow-xs">
+                  {logoUrl ? (
+                    <Image
+                      src={logoUrl}
+                      alt={`${professional.business_name} - ${category.singular_label}`}
+                      fill
+                      sizes="80px"
+                      className="object-cover"
+                      unoptimized
+                    />
+                  ) : (
+                    <span className="text-brand-primary font-black text-xl sm:text-2xl">
+                      {getInitials(professional.business_name) || "H"}
+                    </span>
+                  )}
+                </div>
 
-                <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">
-                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
-                  Verificado por Hiram
-                </span>
+                <div className="space-y-1.5 flex-1">
+                  <div className="flex items-center flex-wrap gap-2">
+                    <span className="inline-flex items-center gap-1.5 px-3 py-0.5 rounded-full text-xs font-semibold bg-brand-surface-muted text-brand-text-muted border border-brand-border">
+                      {professional.provider_type === "company"
+                        ? "🏢 Empresa / Taller"
+                        : "👤 Técnico Profesional"}
+                    </span>
 
-                {professional.is_featured && (
-                  <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-bold bg-amber-50 text-amber-700 border border-amber-200">
-                    ⭐ Destacado
-                  </span>
-                )}
+                    <span className="inline-flex items-center gap-1.5 px-3 py-0.5 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">
+                      <span className="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+                      Verificado por Hiram
+                    </span>
+
+                    {professional.is_featured && (
+                      <span className="inline-flex items-center gap-1 px-3 py-0.5 rounded-full text-xs font-bold bg-amber-50 text-amber-700 border border-amber-200">
+                        ⭐ Destacado
+                      </span>
+                    )}
+                  </div>
+
+                  <h1 className="text-2xl sm:text-3xl font-black text-brand-text-primary tracking-tight">
+                    {professional.business_name}
+                  </h1>
+                </div>
               </div>
 
-              <h1 className="text-2xl sm:text-3xl font-black text-brand-text-primary tracking-tight">
-                {professional.business_name}
-              </h1>
-
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs text-brand-text-muted pt-2 border-t border-brand-border">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs text-brand-text-muted pt-4 border-t border-brand-border">
                 <div className="flex items-center gap-2">
                   <span className="text-base">📍</span>
                   <span>
@@ -191,6 +226,63 @@ export default async function ProfessionalProfilePage({
               </div>
             </div>
 
+            {/* Servicios Ofrecidos (Etiquetas / Chips) */}
+            {professional.services && professional.services.length > 0 && (
+              <div className="bg-brand-surface p-6 sm:p-8 rounded-2xl border border-brand-border shadow-xs space-y-3">
+                <h2 className="text-base font-bold text-brand-text-primary flex items-center gap-2">
+                  <span>🛠️</span> Servicios Especializados
+                </h2>
+                <div className="flex flex-wrap gap-2">
+                  {professional.services.map((svc: any) => (
+                    <span
+                      key={svc.id}
+                      className="px-3 py-1.5 rounded-xl text-xs font-semibold bg-brand-surface-muted text-brand-text-primary border border-brand-border shadow-2xs"
+                    >
+                      {svc.name}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Galería de Trabajos Realizados */}
+            {professional.photos && professional.photos.length > 0 && (
+              <div className="bg-brand-surface p-6 sm:p-8 rounded-2xl border border-brand-border shadow-xs space-y-4">
+                <h2 className="text-base font-bold text-brand-text-primary flex items-center gap-2">
+                  <span>📸</span> Galería de Trabajos y Proyectos Realizados
+                </h2>
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+                  {professional.photos.map((photo: any) => {
+                    const pUrl = getPublicMediaUrl(photo.image_path);
+                    return (
+                      <figure
+                        key={photo.id}
+                        className="rounded-xl border border-brand-border overflow-hidden bg-slate-100 flex flex-col shadow-2xs"
+                      >
+                        <div className="relative aspect-4/3 w-full overflow-hidden">
+                          {pUrl ? (
+                            <Image
+                              src={pUrl}
+                              alt={photo.caption || `${professional.business_name} - ${category.singular_label}`}
+                              fill
+                              sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                              className="object-cover hover:scale-102 transition-transform duration-200"
+                              unoptimized
+                            />
+                          ) : null}
+                        </div>
+                        {photo.caption && (
+                          <figcaption className="p-2.5 text-xs text-brand-text-muted bg-brand-surface border-t border-brand-border leading-snug">
+                            {photo.caption}
+                          </figcaption>
+                        )}
+                      </figure>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
+
             {/* Descripción del Servicio */}
             <div className="bg-brand-surface p-6 sm:p-8 rounded-2xl border border-brand-border shadow-xs space-y-3">
               <h2 className="text-base font-bold text-brand-text-primary flex items-center gap-2">
@@ -212,7 +304,7 @@ export default async function ProfessionalProfilePage({
                   <span>🗺️</span> Zonas de Cobertura y Atención a Domicilio
                 </h2>
                 <div className="flex items-center flex-wrap gap-2">
-                  {professional.service_areas.map((area) => (
+                  {professional.service_areas.map((area: string) => (
                     <span
                       key={area}
                       className="px-3 py-1 rounded-xl text-xs font-semibold bg-brand-surface-muted text-brand-text-primary border border-brand-border"
