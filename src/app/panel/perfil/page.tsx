@@ -2,6 +2,7 @@ import React from "react";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { ProfileForm } from "@/features/professionals/components/ProfileForm";
+import { getActiveLocalitiesGrouped } from "@/services/locations";
 
 export default async function PanelPerfilPage() {
   const supabase = await createClient();
@@ -10,12 +11,8 @@ export default async function PanelPerfilPage() {
     data: { user },
   } = await supabase.auth.getUser();
 
-  // Consultar localidades activas de Anzoátegui
-  const { data: localities } = await supabase
-    .from("localities")
-    .select("id, name, slug")
-    .eq("is_active", true)
-    .order("name", { ascending: true });
+  // Consultar localidades activas agrupadas por municipio
+  const groupedLocalities = await getActiveLocalitiesGrouped();
 
   // Consultar categorías activas
   const { data: categories } = await supabase
@@ -95,7 +92,7 @@ export default async function PanelPerfilPage() {
       {/* Formulario */}
       <ProfileForm
         initialData={initialData}
-        localities={localities || []}
+        groupedLocalities={groupedLocalities}
         categories={categories || []}
       />
     </div>

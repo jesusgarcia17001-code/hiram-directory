@@ -13,6 +13,12 @@ interface LocalityOption {
   slug: string;
 }
 
+export interface GroupedLocalityOption {
+  municipalityName: string;
+  stateName: string;
+  localities: LocalityOption[];
+}
+
 interface CategoryOption {
   id: string;
   name: string;
@@ -36,13 +42,15 @@ interface InitialProfileData {
 
 interface ProfileFormProps {
   initialData?: InitialProfileData | null;
-  localities: LocalityOption[];
+  localities?: LocalityOption[];
+  groupedLocalities?: GroupedLocalityOption[];
   categories: CategoryOption[];
 }
 
 export function ProfileForm({
   initialData,
-  localities,
+  localities = [],
+  groupedLocalities = [],
   categories,
 }: ProfileFormProps) {
   const [state, formAction, isPending] = useActionState<ProfileActionState | null, FormData>(
@@ -277,13 +285,26 @@ export function ProfileForm({
               className="w-full px-3 py-2.5 text-sm bg-brand-surface border border-brand-border rounded-xl text-brand-text-primary focus:outline-none focus:ring-2 focus:ring-brand-primary/20 focus:border-brand-primary"
             >
               <option value="" disabled>
-                -- Selecciona tu ciudad base --
+                -- Selecciona tu ciudad o zona base --
               </option>
-              {localities.map((loc) => (
-                <option key={loc.id} value={loc.id}>
-                  {loc.name} (Anzoátegui)
-                </option>
-              ))}
+              {groupedLocalities && groupedLocalities.length > 0
+                ? groupedLocalities.map((group) => (
+                    <optgroup
+                      key={`${group.stateName}-${group.municipalityName}`}
+                      label={`Municipio ${group.municipalityName} (${group.stateName})`}
+                    >
+                      {group.localities.map((loc) => (
+                        <option key={loc.id} value={loc.id}>
+                          {loc.name}
+                        </option>
+                      ))}
+                    </optgroup>
+                  ))
+                : localities.map((loc) => (
+                    <option key={loc.id} value={loc.id}>
+                      {loc.name} (Anzoátegui)
+                    </option>
+                  ))}
             </select>
             {state?.errors?.locality_id && (
               <p className="text-xs text-brand-danger">
