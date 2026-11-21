@@ -46,6 +46,34 @@ export const brand = {
     danger: "#dc2626",
   },
 
+  // Titular principal y mensajes de confianza (Fase 8, Paso 1)
+  heroTitle: {
+    line1: "¿Necesitas un técnico?",
+    line2: "Búscalo ahora.",
+  },
+  trustChips: [
+    "Perfiles revisados",
+    "Contacto directo por WhatsApp",
+    "Técnicos de tu zona",
+  ] as const,
+  trustColumns: [
+    {
+      icon: "shield",
+      title: "Perfiles revisados",
+      description: "Revisamos los datos de cada técnico antes de publicarlo en el directorio.",
+    },
+    {
+      icon: "message",
+      title: "Contacto directo por WhatsApp",
+      description: "Hablas directo con el profesional por WhatsApp o llamada sin comisiones ni intermediarios.",
+    },
+    {
+      icon: "map-pin",
+      title: "Técnicos de tu zona",
+      description: "Encuentra especialistas con cobertura activa en Puerto La Cruz, Barcelona y zonas cercanas.",
+    },
+  ] as const,
+
   // Contacto y soporte institucional
   contact: {
     supportEmail: "soporte@hiramdirectory.com",
