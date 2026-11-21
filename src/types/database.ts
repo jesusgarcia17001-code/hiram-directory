@@ -135,6 +135,7 @@ export interface Database {
           listing_slug: string;
           singular_label: string;
           plural_label: string;
+          seo_intro: string | null;
           description: string | null;
           icon: string | null;
           is_active: boolean;
@@ -148,6 +149,7 @@ export interface Database {
           listing_slug: string;
           singular_label: string;
           plural_label: string;
+          seo_intro?: string | null;
           description?: string | null;
           icon?: string | null;
           is_active?: boolean;
@@ -161,6 +163,7 @@ export interface Database {
           listing_slug?: string;
           singular_label?: string;
           plural_label?: string;
+          seo_intro?: string | null;
           description?: string | null;
           icon?: string | null;
           is_active?: boolean;

@@ -20,6 +20,7 @@ export function AdminNav({ user }: AdminNavProps) {
     { href: "/admin", label: "Inicio / Métricas" },
     { href: "/admin/profesionales", label: "Aprobación de Perfiles" },
     { href: "/admin/pagos", label: "Verificación de Pagos" },
+    { href: "/admin/categorias", label: "Categorías" },
   ];
 
   return (
