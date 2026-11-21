@@ -52,7 +52,7 @@ export default async function PanelDashboardPage() {
       {/* Si AÚN NO ha creado su perfil profesional */}
       {!professional ? (
         <div className="bg-brand-surface p-8 rounded-2xl border border-dashed border-brand-primary/40 text-center space-y-4">
-          <div className="w-16 h-16 mx-auto rounded-2xl bg-blue-50 text-brand-primary flex items-center justify-center text-3xl">
+          <div className="w-16 h-16 mx-auto rounded-2xl bg-brand-surface-soft text-brand-primary flex items-center justify-center text-3xl">
             🛠️
           </div>
           <div className="max-w-md mx-auto space-y-2">
@@ -142,7 +142,7 @@ export default async function PanelDashboardPage() {
                   Estado de Cuenta
                 </h3>
                 {subscription?.is_active ? (
-                  <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-blue-50 text-blue-700 border border-blue-200">
+                  <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-brand-surface-soft text-brand-primary border border-brand-primary/20">
                     Suscripción Activa
                   </span>
                 ) : (
@@ -288,11 +288,11 @@ export default async function PanelDashboardPage() {
                     </span>
                   </div>
 
-                  <div className="p-3 rounded-lg bg-slate-50 border border-slate-100">
-                    <span className="text-[10px] text-blue-600 font-semibold block uppercase">
+                  <div className="p-3 rounded-lg bg-brand-surface-soft border border-brand-primary/20">
+                    <span className="text-[10px] text-brand-primary font-bold block uppercase">
                       Clics Llamadas
                     </span>
-                    <span className="text-xl font-bold text-blue-700 font-mono">
+                    <span className="text-xl font-bold text-brand-primary font-mono">
                       {stats.total_calls}
                     </span>
                   </div>

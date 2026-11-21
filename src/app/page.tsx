@@ -18,9 +18,10 @@ export default async function HomePage() {
     <div className="min-h-screen flex flex-col bg-background">
       <Header />
 
-      <main className="flex-1 flex flex-col items-center justify-center p-6 text-center space-y-12 my-auto py-12">
-        <div className="max-w-2xl mx-auto space-y-6">
-          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full text-xs font-semibold bg-brand-surface-muted text-brand-text-muted border border-brand-border shadow-xs">
+      {/* 1. PORTADA / HERO EN BRAND-PRIMARY CON TEXTO BLANCO */}
+      <section className="bg-brand-primary text-white py-16 sm:py-20 px-4 sm:px-6 lg:px-8 border-b border-brand-primary-dark text-center">
+        <div className="max-w-3xl mx-auto space-y-6">
+          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full text-xs font-semibold bg-brand-surface-soft text-brand-primary border border-brand-surface-soft/60 shadow-xs">
             <span>{brand.coverage.country}</span>
             <span>•</span>
             <span>
@@ -28,43 +29,46 @@ export default async function HomePage() {
             </span>
           </div>
 
-          <h1 className="text-4xl font-extrabold tracking-tight sm:text-5xl text-brand-text-primary">
+          <h1 className="text-4xl font-black tracking-tight sm:text-5xl text-white">
             {brand.name}
           </h1>
 
-          <p className="text-xl text-brand-text-muted leading-relaxed">
+          <p className="text-xl sm:text-2xl text-white/95 font-medium leading-relaxed max-w-2xl mx-auto">
             {brand.tagline}
           </p>
 
-          <p className="text-sm text-brand-text-muted max-w-xl mx-auto">
+          <p className="text-sm text-slate-200 max-w-xl mx-auto leading-relaxed">
             {brand.description}
           </p>
 
-          <div className="pt-2 flex flex-col sm:flex-row justify-center gap-3">
+          {/* BOTÓN PRINCIPAL: FONDO ACCENT CON TEXTO PRIMARY-DARK */}
+          <div className="pt-4 flex flex-col sm:flex-row justify-center gap-3">
             <Link
               href="/register"
-              className="inline-flex items-center justify-center px-6 py-3 rounded-xl text-sm font-semibold bg-brand-primary text-white shadow-sm hover:bg-brand-primary-hover transition-colors"
+              className="inline-flex items-center justify-center px-6 py-3.5 rounded-xl text-sm font-extrabold bg-brand-accent text-brand-primary-dark shadow-md hover:bg-brand-accent/90 transition-all hover:scale-102"
             >
               Registrarme como Técnico o Empresa
             </Link>
             <Link
               href="/login"
-              className="inline-flex items-center justify-center px-6 py-3 rounded-xl text-sm font-semibold border border-brand-border text-brand-text-primary hover:bg-brand-surface-muted transition-colors"
+              className="inline-flex items-center justify-center px-6 py-3.5 rounded-xl text-sm font-semibold border border-white/30 text-white hover:bg-white/10 transition-colors"
             >
               Acceso a mi panel
             </Link>
           </div>
         </div>
+      </section>
 
-        {/* Sección de Exploración por Categoría */}
+      {/* 2. EXPLORACIÓN DE CATEGORÍAS (ENLACES DE ACENTO EN ACCENT-DARK) */}
+      <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-12 space-y-8">
         {categories.length > 0 && (
-          <div className="w-full max-w-4xl mx-auto space-y-4 pt-6">
+          <div className="space-y-6">
             <div className="text-center space-y-1">
-              <h2 className="text-lg font-bold text-brand-text-primary">
+              <h2 className="text-2xl font-black text-brand-primary">
                 Servicios disponibles en Anzoátegui
               </h2>
               <p className="text-xs text-brand-text-muted">
-                Explora el directorio de especialistas en Puerto La Cruz, Barcelona y zonas cercanas
+                Explora el directorio de especialistas certificados en Puerto La Cruz, Barcelona y zonas cercanas
               </p>
             </div>
 
@@ -73,19 +77,20 @@ export default async function HomePage() {
                 <Link
                   key={cat.id}
                   href={`/${cat.listing_slug}`}
-                  className="p-5 rounded-2xl bg-brand-surface border border-brand-border hover:border-brand-primary/40 hover:shadow-md transition-all group flex flex-col justify-between space-y-3"
+                  className="p-5 rounded-2xl bg-brand-surface border border-brand-border hover:border-brand-accent hover:shadow-md transition-all group flex flex-col justify-between space-y-3"
                 >
                   <div className="flex items-center justify-between">
                     <span className="text-2xl">
                       {categoryIcons[cat.icon || ""] || "🛠️"}
                     </span>
-                    <span className="text-xs text-brand-primary font-bold group-hover:translate-x-0.5 transition-transform">
+                    {/* ENLACES SOBRE BLANCO EN ACCENT-DARK */}
+                    <span className="text-xs text-brand-accent-dark font-extrabold group-hover:translate-x-0.5 transition-transform">
                       Ver lista →
                     </span>
                   </div>
 
                   <div>
-                    <h3 className="text-sm font-bold text-brand-text-primary group-hover:text-brand-primary transition-colors">
+                    <h3 className="text-sm font-bold text-brand-primary group-hover:text-brand-accent-dark transition-colors">
                       {cat.plural_label}
                     </h3>
                     <p className="text-[11px] text-brand-text-muted line-clamp-2 mt-1">

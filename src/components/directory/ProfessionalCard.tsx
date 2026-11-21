@@ -33,7 +33,7 @@ export function ProfessionalCard({
         <div className="flex items-start justify-between gap-3">
           <div className="flex items-center gap-3">
             {/* Logo o Avatar Neutro */}
-            <div className="relative w-12 h-12 rounded-xl overflow-hidden border border-brand-border bg-slate-100 flex items-center justify-center shrink-0 shadow-2xs">
+            <div className="relative w-12 h-12 rounded-xl overflow-hidden border border-brand-primary/20 bg-brand-surface-soft flex items-center justify-center shrink-0 shadow-2xs">
               {logoUrl ? (
                 <Image
                   src={logoUrl}
@@ -44,27 +44,27 @@ export function ProfessionalCard({
                   unoptimized
                 />
               ) : (
-                <span className="text-brand-primary font-bold text-sm">
+                <span className="text-brand-primary font-black text-sm">
                   {getInitials(professional.business_name) || "H"}
                 </span>
               )}
             </div>
 
             <div>
-              <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-brand-surface-muted text-brand-text-muted border border-brand-border">
+              <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-brand-surface-soft text-brand-primary border border-brand-primary/20">
                 {professional.provider_type === "company"
                   ? "🏢 Empresa o Taller"
                   : "👤 Técnico Profesional"}
               </span>
 
-              <h3 className="text-base font-bold text-brand-text-primary hover:text-brand-primary transition-colors mt-1">
+              <h3 className="text-base font-bold text-brand-primary hover:text-brand-accent-dark transition-colors mt-1">
                 <Link href={profileUrl}>{professional.business_name}</Link>
               </h3>
             </div>
           </div>
 
           {professional.is_featured && (
-            <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-bold bg-amber-50 text-amber-700 border border-amber-200 shrink-0">
+            <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-bold bg-brand-surface-soft text-brand-accent-dark border border-brand-accent-dark/30 shrink-0">
               ⭐ Destacado
             </span>
           )}
@@ -93,7 +93,7 @@ export function ProfessionalCard({
         )}
       </div>
 
-      {/* Pie de tarjeta con botón de acción */}
+      {/* Pie de tarjeta con botón de acción (ACCENT con PRIMARY-DARK) */}
       <div className="pt-4 border-t border-brand-border flex items-center justify-between">
         <span className="text-[11px] text-emerald-600 font-semibold flex items-center gap-1">
           <span className="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
@@ -102,7 +102,7 @@ export function ProfessionalCard({
 
         <Link
           href={profileUrl}
-          className="inline-flex items-center justify-center px-4 py-2 rounded-xl text-xs font-semibold bg-brand-primary text-white hover:bg-brand-primary-hover shadow-xs transition-colors"
+          className="inline-flex items-center justify-center px-4 py-2 rounded-xl text-xs font-bold bg-brand-accent text-brand-primary-dark hover:bg-brand-accent/90 shadow-xs transition-colors"
         >
           Ver perfil y contactar →
         </Link>

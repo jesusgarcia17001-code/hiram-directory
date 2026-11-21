@@ -1,21 +1,25 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #0f172a;
+  --background: #FFFFFF;
+  --foreground: #081E42;
 
-  /* Variables de marca (HIRAM Directory) */
-  --brand-primary: #1d4ed8;
-  --brand-primary-hover: #1e40af;
-  --brand-secondary: #0f172a;
-  --brand-accent: #f59e0b;
+  /* Variables oficiales de marca (Fase 8, Paso 0) */
+  --brand-primary: #0B2A5B;
+  --brand-primary-dark: #081E42;
+  --brand-primary-hover: #081E42;
+  --brand-secondary: #081E42;
+  --brand-accent: #F97316;
+  --brand-accent-dark: #C2410C;
+  --brand-surface-soft: #EAF0FA;
+  --brand-surface: #FFFFFF;
+  --brand-surface-muted: #EAF0FA;
+  --brand-text-primary: #081E42;
+  --brand-text-muted: #475569;
+  --brand-border: #cbd5e1;
   --brand-success: #16a34a;
   --brand-danger: #dc2626;
-  --brand-surface: #ffffff;
-  --brand-surface-muted: #f8fafc;
-  --brand-text-primary: #0f172a;
-  --brand-text-muted: #64748b;
-  --brand-border: #e2e8f0;
+  --brand-white: #FFFFFF;
 }
 
 @theme inline {
@@ -25,28 +29,20 @@
   --font-mono: var(--font-geist-mono);
 
   --color-brand-primary: var(--brand-primary);
+  --color-brand-primary-dark: var(--brand-primary-dark);
   --color-brand-primary-hover: var(--brand-primary-hover);
   --color-brand-secondary: var(--brand-secondary);
   --color-brand-accent: var(--brand-accent);
-  --color-brand-success: var(--brand-success);
-  --color-brand-danger: var(--brand-danger);
+  --color-brand-accent-dark: var(--brand-accent-dark);
+  --color-brand-surface-soft: var(--brand-surface-soft);
   --color-brand-surface: var(--brand-surface);
   --color-brand-surface-muted: var(--brand-surface-muted);
   --color-brand-text-primary: var(--brand-text-primary);
   --color-brand-text-muted: var(--brand-text-muted);
   --color-brand-border: var(--brand-border);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #090d16;
-    --foreground: #f1f5f9;
-    --brand-surface: #0f172a;
-    --brand-surface-muted: #1e293b;
-    --brand-text-primary: #f8fafc;
-    --brand-text-muted: #94a3b8;
-    --brand-border: #334155;
-  }
+  --color-brand-success: var(--brand-success);
+  --color-brand-danger: var(--brand-danger);
+  --color-brand-white: var(--brand-white);
 }
 
 body {

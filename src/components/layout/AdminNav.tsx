@@ -25,7 +25,7 @@ export function AdminNav({ user }: AdminNavProps) {
   ];
 
   return (
-    <header className="border-b border-brand-border bg-slate-900 text-white sticky top-0 z-40">
+    <header className="border-b border-brand-primary-dark bg-brand-primary text-white sticky top-0 z-40 shadow-xs">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
           {/* Logo y Titular de Administración */}

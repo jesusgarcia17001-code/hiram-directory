@@ -132,11 +132,11 @@ export default async function ProfessionalProfilePage({
           ]}
         />
 
-        {/* Enlace de Retorno a la Lista de la Ciudad */}
+        {/* Enlace de Retorno a la Lista de la Ciudad (Accent-Dark sobre Blanco) */}
         <div>
           <Link
             href={listUrl}
-            className="inline-flex items-center gap-1.5 text-xs font-semibold text-brand-primary hover:text-brand-primary-hover hover:underline transition-colors"
+            className="inline-flex items-center gap-1.5 text-xs font-bold text-brand-accent-dark hover:underline transition-colors"
           >
             ← Ver todos los {category.plural_label.toLowerCase()} en {locality.name}
           </Link>
@@ -150,7 +150,7 @@ export default async function ProfessionalProfilePage({
             <div className="bg-brand-surface p-6 sm:p-8 rounded-2xl border border-brand-border shadow-xs space-y-4">
               <div className="flex items-start gap-4 sm:gap-6">
                 {/* Logo o Avatar Neutro */}
-                <div className="relative w-16 h-16 sm:w-20 sm:h-20 rounded-2xl overflow-hidden border border-brand-border bg-slate-100 flex items-center justify-center shrink-0 shadow-xs">
+                <div className="relative w-16 h-16 sm:w-20 sm:h-20 rounded-2xl overflow-hidden border border-brand-primary/20 bg-brand-surface-soft flex items-center justify-center shrink-0 shadow-xs">
                   {logoUrl ? (
                     <Image
                       src={logoUrl}
@@ -169,7 +169,7 @@ export default async function ProfessionalProfilePage({
 
                 <div className="space-y-1.5 flex-1">
                   <div className="flex items-center flex-wrap gap-2">
-                    <span className="inline-flex items-center gap-1.5 px-3 py-0.5 rounded-full text-xs font-semibold bg-brand-surface-muted text-brand-text-muted border border-brand-border">
+                    <span className="inline-flex items-center gap-1.5 px-3 py-0.5 rounded-full text-xs font-semibold bg-brand-surface-soft text-brand-primary border border-brand-primary/20">
                       {professional.provider_type === "company"
                         ? "🏢 Empresa / Taller"
                         : "👤 Técnico Profesional"}
@@ -181,13 +181,13 @@ export default async function ProfessionalProfilePage({
                     </span>
 
                     {professional.is_featured && (
-                      <span className="inline-flex items-center gap-1 px-3 py-0.5 rounded-full text-xs font-bold bg-amber-50 text-amber-700 border border-amber-200">
+                      <span className="inline-flex items-center gap-1 px-3 py-0.5 rounded-full text-xs font-bold bg-brand-surface-soft text-brand-accent-dark border border-brand-accent-dark/30">
                         ⭐ Destacado
                       </span>
                     )}
                   </div>
 
-                  <h1 className="text-2xl sm:text-3xl font-black text-brand-text-primary tracking-tight">
+                  <h1 className="text-2xl sm:text-3xl font-black text-brand-primary tracking-tight">
                     {professional.business_name}
                   </h1>
                 </div>
@@ -226,17 +226,17 @@ export default async function ProfessionalProfilePage({
               </div>
             </div>
 
-            {/* Servicios Ofrecidos (Etiquetas / Chips) */}
+            {/* Servicios Ofrecidos (Chips en Surface-Soft con texto Primary) */}
             {professional.services && professional.services.length > 0 && (
               <div className="bg-brand-surface p-6 sm:p-8 rounded-2xl border border-brand-border shadow-xs space-y-3">
-                <h2 className="text-base font-bold text-brand-text-primary flex items-center gap-2">
+                <h2 className="text-base font-bold text-brand-primary flex items-center gap-2">
                   <span>🛠️</span> Servicios Especializados
                 </h2>
                 <div className="flex flex-wrap gap-2">
                   {professional.services.map((svc: any) => (
                     <span
                       key={svc.id}
-                      className="px-3 py-1.5 rounded-xl text-xs font-semibold bg-brand-surface-muted text-brand-text-primary border border-brand-border shadow-2xs"
+                      className="px-3 py-1.5 rounded-xl text-xs font-bold bg-brand-surface-soft text-brand-primary border border-brand-primary/20 shadow-2xs"
                     >
                       {svc.name}
                     </span>

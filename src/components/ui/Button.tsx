@@ -26,13 +26,13 @@ export function Button({
 
   const variantStyles = {
     primary:
-      "bg-brand-primary text-white hover:bg-brand-primary-hover focus:ring-brand-primary",
+      "bg-brand-accent text-brand-primary-dark font-bold hover:bg-brand-accent/90 focus:ring-brand-accent shadow-xs",
     secondary:
-      "bg-brand-secondary text-white hover:bg-slate-800 focus:ring-brand-secondary",
+      "bg-brand-primary text-white hover:bg-brand-primary-dark focus:ring-brand-primary shadow-xs",
     outline:
-      "border border-brand-border text-brand-text-primary hover:bg-brand-surface-muted focus:ring-brand-primary",
+      "border border-brand-border text-brand-text-primary hover:bg-brand-surface-soft focus:ring-brand-primary",
     ghost:
-      "text-brand-text-muted hover:text-brand-text-primary hover:bg-brand-surface-muted focus:ring-brand-primary",
+      "text-brand-text-muted hover:text-brand-text-primary hover:bg-brand-surface-soft focus:ring-brand-primary",
     danger:
       "bg-brand-danger text-white hover:bg-red-700 focus:ring-brand-danger",
   };

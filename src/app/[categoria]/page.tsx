@@ -106,13 +106,13 @@ export default async function CategoryListingPage({
 
         {/* Encabezado Principal de la Página de Lista */}
         <div className="space-y-2 border-b border-brand-border pb-6">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-semibold bg-brand-surface-muted text-brand-text-muted border border-brand-border">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-semibold bg-brand-surface-soft text-brand-primary border border-brand-primary/20">
             <span>📍 Estado Anzoátegui</span>
             <span>•</span>
             <span>{professionals.length} {professionals.length === 1 ? "prestador verificado" : "prestadores verificados"}</span>
           </div>
 
-          <h1 className="text-3xl sm:text-4xl font-extrabold text-brand-text-primary tracking-tight">
+          <h1 className="text-3xl sm:text-4xl font-black text-brand-primary tracking-tight">
             {category.plural_label} en Anzoátegui
           </h1>
 
@@ -137,7 +137,7 @@ export default async function CategoryListingPage({
           <div className="bg-brand-surface p-12 rounded-2xl border border-dashed border-brand-border text-center space-y-4">
             <span className="text-4xl">🛠️</span>
             <div className="max-w-md mx-auto space-y-1">
-              <h2 className="text-base font-bold text-brand-text-primary">
+              <h2 className="text-base font-bold text-brand-primary">
                 Aún no hay {category.plural_label.toLowerCase()} aprobados en esta sección
               </h2>
               <p className="text-xs text-brand-text-muted leading-relaxed">
@@ -148,7 +148,7 @@ export default async function CategoryListingPage({
             <div className="pt-2">
               <Link
                 href="/register"
-                className="inline-flex items-center justify-center px-4 py-2.5 rounded-xl text-xs font-bold bg-brand-primary text-white shadow-xs hover:bg-brand-primary-hover transition-colors"
+                className="inline-flex items-center justify-center px-5 py-2.5 rounded-xl text-xs font-bold bg-brand-accent text-brand-primary-dark shadow-xs hover:bg-brand-accent/90 transition-colors"
               >
                 Registrar mi servicio gratis →
               </Link>

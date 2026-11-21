@@ -24,7 +24,7 @@ export function PanelNav({ user }: PanelNavProps) {
   ];
 
   return (
-    <header className="border-b border-brand-border bg-brand-surface sticky top-0 z-40">
+    <header className="border-b border-brand-primary-dark bg-brand-primary text-white sticky top-0 z-40 shadow-xs">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
           {/* Logo y Enlace a Inicio */}
@@ -33,14 +33,14 @@ export function PanelNav({ user }: PanelNavProps) {
               href="/panel"
               className="inline-flex items-center gap-2.5 focus:outline-none"
             >
-              <div className="w-8 h-8 rounded-lg bg-brand-primary flex items-center justify-center text-white font-bold text-base shadow-sm">
+              <div className="w-8 h-8 rounded-lg bg-brand-accent flex items-center justify-center text-brand-primary-dark font-extrabold text-base shadow-xs">
                 {brand.shortName.charAt(0)}
               </div>
               <div className="flex flex-col text-left">
-                <span className="font-extrabold text-base text-brand-text-primary leading-tight">
+                <span className="font-extrabold text-base text-white leading-tight">
                   {brand.name}
                 </span>
-                <span className="text-[10px] text-brand-text-muted font-semibold tracking-wider uppercase">
+                <span className="text-[10px] text-white/70 font-semibold tracking-wider uppercase">
                   Panel de Control
                 </span>
               </div>
@@ -56,8 +56,8 @@ export function PanelNav({ user }: PanelNavProps) {
                     href={link.href}
                     className={`px-3 py-1.5 text-xs font-semibold rounded-lg transition-colors ${
                       isActive
-                        ? "bg-brand-surface-muted text-brand-primary border border-brand-border"
-                        : "text-brand-text-muted hover:text-brand-text-primary hover:bg-brand-surface-muted"
+                        ? "bg-brand-primary-dark text-white border border-white/20"
+                        : "text-white/80 hover:text-white hover:bg-brand-primary-dark"
                     }`}
                   >
                     {link.label}
@@ -70,10 +70,10 @@ export function PanelNav({ user }: PanelNavProps) {
           {/* Perfil del usuario y botón de cerrar sesión */}
           <div className="flex items-center gap-3">
             <div className="text-right hidden md:block">
-              <p className="text-xs font-semibold text-brand-text-primary leading-tight">
+              <p className="text-xs font-semibold text-white leading-tight">
                 {user.fullName || "Usuario"}
               </p>
-              <p className="text-[11px] text-brand-text-muted leading-tight">
+              <p className="text-[11px] text-white/70 leading-tight">
                 {user.email}
               </p>
             </div>
@@ -81,7 +81,7 @@ export function PanelNav({ user }: PanelNavProps) {
             <form action={signOutAction}>
               <button
                 type="submit"
-                className="px-3 py-1.5 text-xs font-medium rounded-lg border border-brand-border text-brand-text-muted hover:text-brand-danger hover:border-red-200 hover:bg-red-50 transition-colors"
+                className="px-3 py-1.5 text-xs font-semibold rounded-lg border border-white/20 text-white/80 hover:text-white hover:border-red-400 hover:bg-red-950/60 transition-colors cursor-pointer"
               >
                 Cerrar sesión
               </button>
@@ -90,7 +90,7 @@ export function PanelNav({ user }: PanelNavProps) {
         </div>
 
         {/* Navegación móvil */}
-        <div className="sm:hidden flex items-center gap-2 py-2 border-t border-brand-border">
+        <div className="sm:hidden flex items-center gap-2 py-2 border-t border-brand-primary-dark">
           {links.map((link) => {
             const isActive = pathname === link.href;
             return (
@@ -99,8 +99,8 @@ export function PanelNav({ user }: PanelNavProps) {
                 href={link.href}
                 className={`px-3 py-1 text-xs font-medium rounded-md ${
                   isActive
-                    ? "bg-brand-primary text-white"
-                    : "text-brand-text-muted hover:text-brand-text-primary"
+                    ? "bg-brand-primary-dark text-white"
+                    : "text-white/80 hover:text-white"
                 }`}
               >
                 {link.label}

@@ -121,7 +121,7 @@ export default async function LocalityListingPage({
 
         {/* Encabezado Principal Local */}
         <div className="space-y-2 border-b border-brand-border pb-6">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-semibold bg-brand-surface-muted text-brand-text-muted border border-brand-border">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-semibold bg-brand-surface-soft text-brand-primary border border-brand-primary/20">
             <span>📍 {loc.name}, Anzoátegui</span>
             <span>•</span>
             <span>
@@ -132,7 +132,7 @@ export default async function LocalityListingPage({
             </span>
           </div>
 
-          <h1 className="text-3xl sm:text-4xl font-extrabold text-brand-text-primary tracking-tight">
+          <h1 className="text-3xl sm:text-4xl font-black text-brand-primary tracking-tight">
             {category.plural_label} en {loc.name}
           </h1>
 

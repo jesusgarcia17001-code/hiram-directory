@@ -137,8 +137,8 @@ export function ProfileGalleryManager({
           </p>
         </div>
 
-        {/* Indicador de cuota del plan */}
-        <div className="px-3 py-1.5 rounded-xl bg-slate-100 border border-slate-200 text-xs font-semibold text-brand-text-primary shrink-0">
+        {/* Indicador de cuota del plan (surface-soft con texto primary) */}
+        <div className="px-3 py-1.5 rounded-xl bg-brand-surface-soft border border-brand-primary/20 text-xs font-bold text-brand-primary shrink-0">
           <span>{photos.length} de {maxPhotos} fotos</span>
           <span className="text-[10px] text-brand-text-muted font-normal block sm:inline sm:ml-1">
             (Plan {planName})
@@ -209,7 +209,7 @@ export function ProfileGalleryManager({
               />
               <label
                 htmlFor="gallery-photo-upload"
-                className={`w-full inline-flex items-center justify-center gap-1.5 px-4 py-2 text-xs font-semibold rounded-xl text-white bg-brand-primary hover:bg-brand-primary/90 transition-colors shadow-xs cursor-pointer ${
+                className={`w-full inline-flex items-center justify-center gap-1.5 px-4 py-2 text-xs font-extrabold rounded-xl text-brand-primary-dark bg-brand-accent hover:bg-brand-accent/90 transition-colors shadow-xs cursor-pointer ${
                   isPending ? "opacity-50 cursor-not-allowed" : ""
                 }`}
               >

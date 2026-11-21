@@ -105,7 +105,7 @@ export function PaymentForm({ professionalId, plans }: PaymentFormProps) {
                 onClick={() => setSelectedPlanId(plan.id)}
                 className={`cursor-pointer p-4 rounded-xl border transition-all ${
                   isSelected
-                    ? "border-brand-primary bg-blue-50/50 ring-2 ring-brand-primary shadow-xs"
+                    ? "border-brand-primary bg-brand-surface-soft ring-2 ring-brand-primary shadow-xs"
                     : "border-brand-border bg-brand-surface hover:border-slate-300"
                 }`}
               >

@@ -29,18 +29,21 @@ export const brand = {
     favicon: "/favicon.ico",
   },
 
-  // Paleta de colores base (tokens de referencia alineados con variables CSS)
+  // Paleta de colores oficial (Fase 8, Paso 0)
   colors: {
-    primary: "#1d4ed8", // Azul confiable (servicios profesionales)
-    primaryHover: "#1e40af",
-    secondary: "#0f172a", // Pizarra oscuro institucional
-    accent: "#f59e0b", // Ámbar de acción/atención
+    primary: "#0B2A5B", // Azul marino institucional
+    primaryDark: "#081E42", // Azul marino profundo
+    secondary: "#081E42",
+    accent: "#F97316", // Naranja vibrante de acción
+    accentDark: "#C2410C", // Naranja oscuro para texto/enlaces con contraste WCAG AA
+    surfaceSoft: "#EAF0FA", // Azul grisáceo suave para chips y fondos
+    surface: "#FFFFFF",
+    surfaceMuted: "#EAF0FA",
+    textPrimary: "#081E42",
+    textMuted: "#475569",
+    white: "#FFFFFF",
     success: "#16a34a",
     danger: "#dc2626",
-    surface: "#ffffff",
-    surfaceMuted: "#f8fafc",
-    textPrimary: "#0f172a",
-    textMuted: "#64748b",
   },
 
   // Contacto y soporte institucional

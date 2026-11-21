@@ -119,7 +119,7 @@ export function ProfileForm({
             onClick={() => handleProviderTypeChange("individual")}
             className={`p-4 rounded-xl border-2 text-left transition-all ${
               providerType === "individual"
-                ? "border-brand-primary bg-blue-50/50 shadow-xs"
+                ? "border-brand-primary bg-brand-surface-soft shadow-xs"
                 : "border-brand-border bg-brand-surface hover:border-slate-300"
             }`}
           >
@@ -141,7 +141,7 @@ export function ProfileForm({
             onClick={() => handleProviderTypeChange("company")}
             className={`p-4 rounded-xl border-2 text-left transition-all ${
               providerType === "company"
-                ? "border-brand-primary bg-blue-50/50 shadow-xs"
+                ? "border-brand-primary bg-brand-surface-soft shadow-xs"
                 : "border-brand-border bg-brand-surface hover:border-slate-300"
             }`}
           >

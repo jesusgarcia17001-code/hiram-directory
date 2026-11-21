@@ -25,7 +25,7 @@ export default async function PanelSuscripcionPage() {
   if (!professional) {
     return (
       <div className="bg-brand-surface p-8 rounded-2xl border border-dashed border-brand-primary/40 text-center space-y-4">
-        <div className="w-16 h-16 mx-auto rounded-2xl bg-blue-50 text-brand-primary flex items-center justify-center text-3xl">
+        <div className="w-16 h-16 mx-auto rounded-2xl bg-brand-surface-soft text-brand-primary flex items-center justify-center text-3xl">
           🛠️
         </div>
         <div className="max-w-md mx-auto space-y-2">

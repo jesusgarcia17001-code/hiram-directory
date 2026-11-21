@@ -101,8 +101,8 @@ export function ProfileLogoUploader({
       )}
 
       <div className="flex flex-col sm:flex-row items-center gap-5 pt-1">
-        {/* Vista previa de la imagen o avatar neutro */}
-        <div className="relative w-24 h-24 rounded-2xl overflow-hidden border-2 border-brand-border bg-slate-100 flex items-center justify-center shrink-0 shadow-xs">
+        {/* Vista previa de la imagen o avatar neutro (surface-soft con primary) */}
+        <div className="relative w-24 h-24 rounded-2xl overflow-hidden border-2 border-brand-primary/20 bg-brand-surface-soft flex items-center justify-center shrink-0 shadow-xs">
           {publicUrl ? (
             <Image
               src={publicUrl}
@@ -113,11 +113,11 @@ export function ProfileLogoUploader({
               unoptimized
             />
           ) : (
-            <div className="w-full h-full flex flex-col items-center justify-center bg-gradient-to-br from-blue-50 to-slate-100 text-brand-primary">
+            <div className="w-full h-full flex flex-col items-center justify-center bg-brand-surface-soft text-brand-primary">
               <span className="text-2xl font-black">
                 {getInitials(businessName) || "H"}
               </span>
-              <span className="text-[9px] font-semibold text-slate-400 mt-0.5">
+              <span className="text-[9px] font-bold text-brand-text-muted mt-0.5">
                 Sin foto
               </span>
             </div>
@@ -139,7 +139,7 @@ export function ProfileLogoUploader({
           <div className="flex flex-wrap items-center gap-2.5 justify-center sm:justify-start">
             <label
               htmlFor="profile-logo-upload"
-              className={`inline-flex items-center gap-1.5 px-4 py-2 text-xs font-semibold rounded-xl text-white bg-brand-primary hover:bg-brand-primary/90 transition-colors shadow-xs cursor-pointer ${
+              className={`inline-flex items-center gap-1.5 px-4 py-2 text-xs font-extrabold rounded-xl text-brand-primary-dark bg-brand-accent hover:bg-brand-accent/90 transition-colors shadow-xs cursor-pointer ${
                 isPending ? "opacity-50 cursor-not-allowed" : ""
               }`}
             >

@@ -99,7 +99,7 @@ export function ProfileServicesManager({
           </p>
         </div>
 
-        <div className="px-3 py-1.5 rounded-xl bg-slate-100 border border-slate-200 text-xs font-semibold text-brand-text-primary shrink-0">
+        <div className="px-3 py-1.5 rounded-xl bg-brand-surface-soft border border-brand-primary/20 text-xs font-bold text-brand-primary shrink-0">
           <span>{services.length} de {maxServices} servicios</span>
         </div>
       </div>
@@ -116,9 +116,9 @@ export function ProfileServicesManager({
         </div>
       )}
 
-      {/* Lista actual de servicios (Etiquetas / Chips) */}
+      {/* Lista actual de servicios (Chips en Surface-Soft con texto Primary) */}
       <div className="space-y-2">
-        <label className="block text-xs font-semibold text-brand-text-primary">
+        <label className="block text-xs font-semibold text-brand-primary">
           Servicios activos en tu perfil:
         </label>
 
@@ -131,7 +131,7 @@ export function ProfileServicesManager({
             {services.map((svc) => (
               <span
                 key={svc.id}
-                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold bg-brand-surface-muted text-brand-text-primary border border-brand-border group hover:border-slate-400 transition-colors"
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold bg-brand-surface-soft text-brand-primary border border-brand-primary/20 group hover:border-brand-primary/40 transition-colors shadow-2xs"
               >
                 <span>{svc.name}</span>
                 <button
@@ -151,8 +151,8 @@ export function ProfileServicesManager({
 
       {/* Sugerencias del catálogo según categoría */}
       {!hasReachedLimit && availableSuggestions.length > 0 && (
-        <div className="p-4 bg-slate-50 rounded-xl border border-slate-200 space-y-2">
-          <p className="text-xs font-bold text-brand-text-primary">
+        <div className="p-4 bg-brand-surface-soft rounded-xl border border-brand-primary/20 space-y-2">
+          <p className="text-xs font-bold text-brand-primary">
             💡 Sugerencias populares {categoryName ? `en ${categoryName}` : "para tu especialidad"}:
           </p>
           <div className="flex flex-wrap gap-1.5">
@@ -162,7 +162,7 @@ export function ProfileServicesManager({
                 type="button"
                 onClick={() => handleAddService(sug.name, sug.id)}
                 disabled={isPending}
-                className="px-2.5 py-1 text-xs font-medium bg-white text-slate-700 hover:text-brand-primary hover:border-brand-primary border border-slate-300 rounded-lg transition-colors flex items-center gap-1 shadow-2xs"
+                className="px-2.5 py-1 text-xs font-semibold bg-white text-brand-primary hover:text-brand-accent-dark hover:border-brand-accent-dark border border-brand-primary/20 rounded-lg transition-colors flex items-center gap-1 shadow-2xs"
               >
                 <span>+</span> {sug.name}
               </button>
@@ -174,7 +174,7 @@ export function ProfileServicesManager({
       {/* Agregar servicio personalizado */}
       {!hasReachedLimit && (
         <div className="pt-2">
-          <label className="block text-xs font-semibold text-brand-text-primary mb-1">
+          <label className="block text-xs font-semibold text-brand-primary mb-1">
             Agregar otro servicio personalizado (2 a 120 caracteres):
           </label>
           <div className="flex gap-2">
@@ -191,7 +191,7 @@ export function ProfileServicesManager({
               type="button"
               onClick={() => handleAddService(customInput)}
               disabled={isPending || customInput.trim().length < 2}
-              className="px-4 py-2 text-xs font-bold text-white bg-brand-primary hover:bg-brand-primary/90 rounded-xl transition-colors shadow-xs disabled:opacity-50 shrink-0"
+              className="px-4 py-2 text-xs font-bold text-brand-primary-dark bg-brand-accent hover:bg-brand-accent/90 rounded-xl transition-colors shadow-xs disabled:opacity-50 shrink-0 cursor-pointer"
             >
               + Agregar
             </button>
