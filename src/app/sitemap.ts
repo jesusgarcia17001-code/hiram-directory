@@ -3,6 +3,9 @@ import { site } from "@/config/site";
 import { createClient } from "@/lib/supabase/server";
 import { getActiveCategories, getListingCombinations } from "@/services/directory";
 
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const supabase = await createClient();
 
