@@ -90,6 +90,17 @@ export default function RegisterPage() {
         <Button type="submit" className="w-full mt-2" isLoading={isPending}>
           Crear cuenta gratis
         </Button>
+
+        <p className="text-[11px] text-brand-text-muted text-center pt-1">
+          🔒 Tu cédula o RIF no se muestra públicamente. Solo tú y los administradores pueden verla. La usamos para evitar perfiles falsos.{" "}
+          <Link
+            href="/privacidad"
+            className="text-brand-accent-dark font-medium underline hover:text-brand-accent"
+            target="_blank"
+          >
+            Ver privacidad
+          </Link>
+        </p>
       </form>
 
       <div className="text-center pt-2 border-t border-brand-border">

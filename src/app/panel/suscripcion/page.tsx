@@ -5,6 +5,8 @@ import { brand } from "@/config/brand";
 import {
   getActivePlans,
   getProfessionalSubscriptionInfo,
+  getActiveExchangeRate,
+  getPaymentSettings,
 } from "@/services/payments";
 import { PaymentForm } from "@/features/payments/PaymentForm";
 import { ReceiptViewerButton } from "@/components/payments/ReceiptViewerModal";
@@ -48,9 +50,11 @@ export default async function PanelSuscripcionPage() {
     );
   }
 
-  const [plans, info] = await Promise.all([
+  const [plans, info, activeRate, paymentSettings] = await Promise.all([
     getActivePlans(),
     getProfessionalSubscriptionInfo(professional.id),
+    getActiveExchangeRate(),
+    getPaymentSettings(),
   ]);
 
   const { subscription, payments } = info;
@@ -143,7 +147,12 @@ export default async function PanelSuscripcionPage() {
           </p>
         </div>
 
-        <PaymentForm professionalId={professional.id} plans={plans} />
+        <PaymentForm
+          professionalId={professional.id}
+          plans={plans}
+          activeRate={activeRate}
+          paymentSettings={paymentSettings}
+        />
       </div>
 
       {/* Historial de Pagos Reportados */}
@@ -194,6 +203,11 @@ export default async function PanelSuscripcionPage() {
                     </td>
                     <td className="py-3 px-4 font-bold text-brand-text-primary">
                       ${p.amount} {p.currency}
+                      {p.amount_bs ? (
+                        <span className="block text-[11px] font-normal text-brand-text-muted">
+                          (Bs {Number(p.amount_bs).toLocaleString("es-VE", { minimumFractionDigits: 2, maximumFractionDigits: 2 })})
+                        </span>
+                      ) : null}
                     </td>
                     <td className="py-3 px-4">
                       {p.status === "approved" && (

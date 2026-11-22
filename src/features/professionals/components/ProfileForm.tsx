@@ -212,6 +212,19 @@ export function ProfileForm({
           {state?.errors?.id_number && (
             <p className="text-xs text-brand-danger">{state.errors.id_number[0]}</p>
           )}
+          <p className="text-[11px] text-brand-text-muted mt-1.5 flex items-start sm:items-center gap-1.5">
+            <span className="text-xs">🔒</span>
+            <span>
+              Tu cédula o RIF no se muestra públicamente. Solo tú y los administradores pueden verla. La usamos para evitar perfiles falsos.{" "}
+              <Link
+                href="/privacidad"
+                className="text-brand-accent-dark font-medium underline hover:text-brand-accent"
+                target="_blank"
+              >
+                Más información en privacidad
+              </Link>
+            </span>
+          </p>
         </div>
 
         {/* Nombre Comercial */}

@@ -2,14 +2,21 @@
 
 import React, { useState, useTransition } from "react";
 import { submitPaymentAction, SubmitPaymentResult } from "@/features/payments/actions";
-import { PlanItem } from "@/services/payments";
+import { PlanItem, PaymentSettingsItem, ActiveExchangeRate } from "@/services/payments";
 
 interface PaymentFormProps {
   professionalId: string;
   plans: PlanItem[];
+  paymentSettings: PaymentSettingsItem | null;
+  activeRate: ActiveExchangeRate | null;
 }
 
-export function PaymentForm({ professionalId, plans }: PaymentFormProps) {
+export function PaymentForm({
+  professionalId,
+  plans,
+  paymentSettings,
+  activeRate,
+}: PaymentFormProps) {
   const [isPending, startTransition] = useTransition();
   const [result, setResult] = useState<SubmitPaymentResult | null>(null);
 
@@ -21,12 +28,33 @@ export function PaymentForm({ professionalId, plans }: PaymentFormProps) {
   const [paymentMethod, setPaymentMethod] = useState<string>("pago_movil");
   const [reference, setReference] = useState<string>("");
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [copiedField, setCopiedField] = useState<string | null>(null);
 
   const selectedPlan = plans.find((p) => p.id === selectedPlanId);
+  const planPriceUsd = selectedPlan?.price || 0;
+  const rateValue = activeRate?.rate || 0;
+  const amountBs = rateValue > 0 ? Number((planPriceUsd * rateValue).toFixed(2)) : 0;
+
+  const handleCopy = (text: string, fieldKey: string) => {
+    if (!text) return;
+    navigator.clipboard.writeText(text);
+    setCopiedField(fieldKey);
+    setTimeout(() => {
+      setCopiedField(null);
+    }, 2000);
+  };
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setResult(null);
+
+    if (!activeRate || rateValue <= 0) {
+      setResult({
+        success: false,
+        message: "No hay una tasa de cambio activa en este momento. Por favor espera unos minutos o contacta a soporte.",
+      });
+      return;
+    }
 
     if (!selectedPlanId) {
       setResult({
@@ -55,7 +83,7 @@ export function PaymentForm({ professionalId, plans }: PaymentFormProps) {
     const formData = new FormData();
     formData.append("professional_id", professionalId);
     formData.append("plan_id", selectedPlanId);
-    formData.append("amount", (selectedPlan?.price || 5).toString());
+    formData.append("amount", planPriceUsd.toString());
     formData.append("payment_method", paymentMethod);
     formData.append("reference_number", reference.trim());
     formData.append("receipt_file", selectedFile);
@@ -66,7 +94,6 @@ export function PaymentForm({ professionalId, plans }: PaymentFormProps) {
       if (res.success) {
         setReference("");
         setSelectedFile(null);
-        // Reset file input
         const fileInput = document.getElementById("receipt_file") as HTMLInputElement;
         if (fileInput) fileInput.value = "";
       }
@@ -132,39 +159,143 @@ export function PaymentForm({ professionalId, plans }: PaymentFormProps) {
         </div>
       </div>
 
-      {/* 2. Datos Bancarios Oficiales */}
-      <div className="p-5 rounded-xl bg-slate-900 text-white space-y-3 shadow-xs">
-        <div className="flex items-center justify-between">
-          <span className="text-xs font-bold uppercase tracking-wider text-slate-400">
-            2. Realiza tu pago en Bolívares (Tasa Oficial BCV)
-          </span>
-          <span className="text-[10px] bg-slate-800 px-2 py-0.5 rounded text-slate-300">
-            Cuentas Oficiales
-          </span>
-        </div>
-
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
-          <div className="p-3 bg-slate-800/80 rounded-lg space-y-1">
-            <span className="font-bold text-blue-400 block">📱 Pago Móvil</span>
-            <p><strong>Banco:</strong> Banesco (0134)</p>
-            <p><strong>Teléfono:</strong> 0414-8001234</p>
-            <p><strong>C.I. / RIF:</strong> J-50123456-7</p>
+      {/* 2. Resumen de Monto a Pagar y Tasa BCV */}
+      <div className="p-5 rounded-2xl bg-brand-surface-soft border border-brand-primary/20 space-y-3">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-brand-primary/10 pb-3">
+          <div>
+            <span className="text-xs font-bold uppercase tracking-wider text-brand-text-muted block">
+              Monto a Transferir en Bolívares
+            </span>
+            <div className="flex items-baseline gap-2 mt-0.5">
+              <span className="text-2xl sm:text-3xl font-black text-brand-text-primary font-mono">
+                {amountBs > 0 ? `Bs ${amountBs.toLocaleString("es-VE", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}` : "—"}
+              </span>
+              <span className="text-xs font-bold text-brand-text-muted">
+                (${planPriceUsd} USD)
+              </span>
+            </div>
           </div>
 
-          <div className="p-3 bg-slate-800/80 rounded-lg space-y-1">
-            <span className="font-bold text-emerald-400 block">🏦 Transferencia Bancaria</span>
-            <p><strong>Banco:</strong> Banesco Banco Universal</p>
-            <p><strong>Cuenta:</strong> 0134-0000-00-0000000000</p>
-            <p><strong>Titular:</strong> Directorio HIRAM C.A.</p>
+          <div className="text-left sm:text-right">
+            {activeRate ? (
+              <div className="space-y-0.5">
+                <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-emerald-100 text-emerald-800">
+                  Tasa del día: {activeRate.rate.toFixed(2)} Bs
+                </span>
+                <p className="text-[10px] text-brand-text-muted">
+                  Fuente: {activeRate.source === "manual" ? "Oficial (Manual)" : "BCV (CotizaVE)"} ·{" "}
+                  {new Date(activeRate.source_updated_at).toLocaleDateString("es-VE")}
+                </p>
+              </div>
+            ) : (
+              <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-amber-100 text-amber-800">
+                ⚠️ Tasa no disponible
+              </span>
+            )}
           </div>
         </div>
 
-        <p className="text-[11px] text-slate-400">
-          💡 <em>Calcula el monto al cambio oficial del BCV del día correspondiente al plan seleccionado (${selectedPlan?.price || 5} USD).</em>
+        <p className="text-[11px] text-brand-text-muted leading-relaxed">
+          ℹ️ <strong>Aviso:</strong> El monto en Bs se calcula con la tasa BCV vigente al momento de reportar el pago.
         </p>
       </div>
 
-      {/* 3. Reportar los datos del pago */}
+      {/* 3. Datos Bancarios Oficiales de Pago Móvil con botón Copiar */}
+      <div className="p-5 rounded-2xl bg-slate-900 text-white space-y-4 shadow-xs">
+        <div className="flex items-center justify-between">
+          <span className="text-xs font-bold uppercase tracking-wider text-slate-400">
+            2. Datos para realizar el Pago Móvil
+          </span>
+          <span className="text-[10px] bg-slate-800 px-2.5 py-0.5 rounded text-slate-300 font-semibold">
+            Cuenta Receptora Oficial
+          </span>
+        </div>
+
+        {paymentSettings && paymentSettings.phone ? (
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+            {/* Banco */}
+            <div className="p-3 bg-slate-800/80 rounded-xl flex items-center justify-between gap-2">
+              <div>
+                <span className="text-[10px] uppercase font-bold text-slate-400 block">Banco</span>
+                <p className="font-semibold text-white">
+                  {paymentSettings.bank_name}{" "}
+                  <span className="font-mono text-amber-400">({paymentSettings.bank_code})</span>
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={() => handleCopy(paymentSettings.bank_code, "bank")}
+                className="px-2.5 py-1 text-[11px] font-semibold bg-slate-700 hover:bg-slate-600 rounded-lg text-slate-200 transition-colors"
+              >
+                {copiedField === "bank" ? "Copiado ✓" : "Copiar"}
+              </button>
+            </div>
+
+            {/* Teléfono */}
+            <div className="p-3 bg-slate-800/80 rounded-xl flex items-center justify-between gap-2">
+              <div>
+                <span className="text-[10px] uppercase font-bold text-slate-400 block">Teléfono</span>
+                <p className="font-mono font-semibold text-white">{paymentSettings.phone}</p>
+              </div>
+              <button
+                type="button"
+                onClick={() => handleCopy(paymentSettings.phone, "phone")}
+                className="px-2.5 py-1 text-[11px] font-semibold bg-slate-700 hover:bg-slate-600 rounded-lg text-slate-200 transition-colors"
+              >
+                {copiedField === "phone" ? "Copiado ✓" : "Copiar"}
+              </button>
+            </div>
+
+            {/* Documento */}
+            <div className="p-3 bg-slate-800/80 rounded-xl flex items-center justify-between gap-2">
+              <div>
+                <span className="text-[10px] uppercase font-bold text-slate-400 block">Cédula / RIF</span>
+                <p className="font-mono font-semibold text-white">
+                  {paymentSettings.id_type}-{paymentSettings.id_number}
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={() =>
+                  handleCopy(`${paymentSettings.id_type}${paymentSettings.id_number}`, "doc")
+                }
+                className="px-2.5 py-1 text-[11px] font-semibold bg-slate-700 hover:bg-slate-600 rounded-lg text-slate-200 transition-colors"
+              >
+                {copiedField === "doc" ? "Copiado ✓" : "Copiar"}
+              </button>
+            </div>
+
+            {/* Titular */}
+            <div className="p-3 bg-slate-800/80 rounded-xl flex items-center justify-between gap-2">
+              <div>
+                <span className="text-[10px] uppercase font-bold text-slate-400 block">Titular</span>
+                <p className="font-semibold text-white truncate max-w-[140px]">
+                  {paymentSettings.account_holder}
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={() => handleCopy(paymentSettings.account_holder, "holder")}
+                className="px-2.5 py-1 text-[11px] font-semibold bg-slate-700 hover:bg-slate-600 rounded-lg text-slate-200 transition-colors"
+              >
+                {copiedField === "holder" ? "Copiado ✓" : "Copiar"}
+              </button>
+            </div>
+          </div>
+        ) : (
+          <div className="p-4 bg-slate-800/50 rounded-xl text-center text-xs text-slate-400">
+            Los datos de Pago Móvil están en proceso de configuración por administración.
+          </div>
+        )}
+
+        {paymentSettings?.instructions && (
+          <p className="text-[11px] text-slate-400 border-t border-slate-800/80 pt-2">
+            💡 {paymentSettings.instructions}
+          </p>
+        )}
+      </div>
+
+      {/* 4. Reportar los datos del pago */}
       <div className="space-y-4 pt-2">
         <label className="block text-sm font-bold text-brand-text-primary">
           3. Reporta los datos de tu comprobante
@@ -182,14 +313,12 @@ export function PaymentForm({ professionalId, plans }: PaymentFormProps) {
             >
               <option value="pago_movil">Pago Móvil</option>
               <option value="transferencia">Transferencia Bancaria Nacional</option>
-              <option value="deposito_dolares">Depósito en Dólares / Divisas</option>
-              <option value="efectivo">Efectivo / Entrega Directa</option>
             </select>
           </div>
 
           <div>
             <label className="block text-xs font-semibold text-brand-text-muted mb-1">
-              Número de Referencia Bancaria
+              Número de Referencia Bancaria *
             </label>
             <input
               type="text"
@@ -205,7 +334,7 @@ export function PaymentForm({ professionalId, plans }: PaymentFormProps) {
         {/* Carga del comprobante */}
         <div>
           <label className="block text-xs font-semibold text-brand-text-muted mb-1">
-            Captura o Comprobante de Pago (JPG, PNG, PDF - Máx 5 MB)
+            Captura o Comprobante de Pago (JPG, PNG, PDF - Máx 5 MB) *
           </label>
           <input
             id="receipt_file"
@@ -222,20 +351,29 @@ export function PaymentForm({ professionalId, plans }: PaymentFormProps) {
       </div>
 
       <div className="pt-2">
-        <button
-          type="submit"
-          disabled={isPending}
-          className="w-full sm:w-auto inline-flex items-center justify-center px-6 py-3 rounded-xl text-sm font-semibold bg-brand-primary text-white shadow-sm hover:bg-brand-primary-hover transition-colors disabled:opacity-50"
-        >
-          {isPending ? (
-            <span className="flex items-center gap-2">
-              <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></span>
-              Enviando comprobante...
-            </span>
-          ) : (
-            `Reportar Pago de $${selectedPlan?.price || 5} USD →`
-          )}
-        </button>
+        {!activeRate || rateValue <= 0 ? (
+          <div className="bg-amber-50 border border-amber-200 text-amber-800 p-4 rounded-xl text-xs space-y-1">
+            <p className="font-bold">⚠️ Pagos temporalmente en pausa</p>
+            <p>
+              Estamos sincronizando la tasa de cambio oficial del día. En breves minutos podrás reportar tu pago con el monto en Bolívares actualizado.
+            </p>
+          </div>
+        ) : (
+          <button
+            type="submit"
+            disabled={isPending}
+            className="w-full sm:w-auto inline-flex items-center justify-center px-6 py-3 rounded-xl text-sm font-semibold bg-brand-primary text-white shadow-sm hover:bg-brand-primary-hover transition-colors disabled:opacity-50"
+          >
+            {isPending ? (
+              <span className="flex items-center gap-2">
+                <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></span>
+                Enviando comprobante...
+              </span>
+            ) : (
+              `Reportar Pago por Bs ${amountBs.toLocaleString("es-VE", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} →`
+            )}
+          </button>
+        )}
       </div>
     </form>
   );

@@ -3,6 +3,7 @@ import "server-only";
 import { createHmac, randomUUID } from "crypto";
 import { cookies, headers } from "next/headers";
 import { createClient } from "@/lib/supabase/server";
+import { createAdminClient } from "@/lib/supabase/admin";
 import { brand } from "@/config/brand";
 
 const VISITOR_COOKIE_NAME = "__hiram_vid";
@@ -101,11 +102,15 @@ export async function recordProfileVisit(professionalId: string): Promise<boolea
   const dedupeKey = `visit-${professionalId}-${visitorHash}`;
 
   const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  const actorId = user?.id || null;
 
-  const { data: recorded, error } = await supabase.rpc("record_profile_visit", {
+  const adminClient = createAdminClient();
+  const { data: recorded, error } = await adminClient.rpc("record_profile_visit", {
     p_professional_id: professionalId,
     p_visitor_hash: visitorHash,
     p_dedupe_key: dedupeKey,
+    p_actor_id: actorId,
   });
 
   if (error) {
@@ -119,6 +124,7 @@ export async function recordProfileVisit(professionalId: string): Promise<boolea
 /**
  * Solicita de forma atómica la autorización y revelado del número de contacto (WhatsApp o llamada).
  * REGLA DE SEGURIDAD: El servidor valida cuotas con FOR UPDATE y genera el enlace oficial.
+ * Ejecutado exclusivamente por service_role con el actor_id verificado en servidor.
  */
 export async function revealProfessionalContact(
   professionalId: string,
@@ -139,12 +145,16 @@ export async function revealProfessionalContact(
   )}`;
 
   const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  const actorId = user?.id || null;
 
-  const { data, error } = await supabase.rpc("reveal_professional_contact", {
+  const adminClient = createAdminClient();
+  const { data, error } = await adminClient.rpc("reveal_professional_contact", {
     p_professional_id: professionalId,
     p_channel: channel,
     p_visitor_hash: visitorHash,
     p_dedupe_key: dedupeKey,
+    p_actor_id: actorId,
   });
 
   if (error) {
@@ -182,7 +192,7 @@ export async function revealProfessionalContact(
   if (channel === "whatsapp") {
     const cleanNumber = rawPhone.replace(/\+/g, "");
     const message = encodeURIComponent(
-      `Hola, vi tu perfil en ${brand.name} y deseo consultar sobre tus servicios.`
+      "Hola, vi tu perfil en Ofir Oficios y deseo consultar sobre tus servicios."
     );
     actionUrl = `https://wa.me/${cleanNumber}?text=${message}`;
   } else {
@@ -200,12 +210,12 @@ export async function revealProfessionalContact(
 
 /**
  * Obtiene las métricas privadas del profesional para mostrar en su panel.
- * Solo puede ser ejecutada por el dueño del perfil o un administrador.
+ * Ejecutada mediante service_role en el servidor tras validar autenticación.
  */
 export async function getProfessionalMetrics(professionalId: string) {
-  const supabase = await createClient();
+  const adminClient = createAdminClient();
 
-  const { data, error } = await supabase.rpc("get_professional_metrics", {
+  const { data, error } = await adminClient.rpc("get_professional_metrics", {
     p_professional_id: professionalId,
   });
 

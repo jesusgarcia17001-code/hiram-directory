@@ -35,6 +35,10 @@ export interface PaymentItem {
   reviewed_at: string | null;
   rejection_reason: string | null;
   created_at: string;
+  amount_usd?: number | null;
+  rate_used?: number | null;
+  amount_bs?: number | null;
+  rate_date?: string | null;
   receipt?: {
     storage_path: string;
     mime_type: string;
@@ -319,3 +323,136 @@ export async function uploadReceiptFile(
     sizeBytes: file.size,
   };
 }
+
+export interface ActiveExchangeRate {
+  id: string;
+  currency_pair: string;
+  rate: number;
+  source: "cotizave" | "manual";
+  source_updated_at: string;
+  created_at: string;
+  created_by?: string | null;
+  creator_name?: string | null;
+  is_active: boolean;
+  status: "active" | "pending_approval" | "superseded" | "rejected";
+  is_outdated: boolean;
+}
+
+export interface PaymentSettingsItem {
+  id: string;
+  bank_name: string;
+  bank_code: string;
+  id_type: string;
+  id_number: string;
+  phone: string;
+  account_holder: string;
+  instructions: string;
+  is_active: boolean;
+  updated_at: string;
+}
+
+/**
+ * Consulta la tasa activa actual para USD_VES.
+ * Calcula si la tasa tiene más de 2 días de antigüedad (is_outdated).
+ */
+export async function getActiveExchangeRate(): Promise<ActiveExchangeRate | null> {
+  const supabase = await createClient();
+
+  const { data, error } = await supabase
+    .from("exchange_rates")
+    .select("id, currency_pair, rate, source, source_updated_at, created_at, created_by, is_active, status")
+    .eq("currency_pair", "USD_VES")
+    .eq("is_active", true)
+    .maybeSingle();
+
+  if (error || !data) {
+    return null;
+  }
+
+  const rateDate = new Date(data.source_updated_at).getTime();
+  const diffDays = (Date.now() - rateDate) / (1000 * 60 * 60 * 24);
+
+  return {
+    id: data.id,
+    currency_pair: data.currency_pair,
+    rate: Number(data.rate),
+    source: data.source as "cotizave" | "manual",
+    source_updated_at: data.source_updated_at,
+    created_at: data.created_at,
+    created_by: data.created_by,
+    is_active: data.is_active,
+    status: data.status as "active" | "pending_approval" | "superseded" | "rejected",
+    is_outdated: diffDays > 2,
+  };
+}
+
+/**
+ * Consulta los datos activos de Pago Móvil para transferencias.
+ */
+export async function getPaymentSettings(): Promise<PaymentSettingsItem | null> {
+  const supabase = await createClient();
+
+  const { data, error } = await supabase
+    .from("payment_settings")
+    .select("id, bank_name, bank_code, id_type, id_number, phone, account_holder, instructions, is_active, updated_at")
+    .eq("id", "pago_movil")
+    .maybeSingle();
+
+  if (error || !data) {
+    return null;
+  }
+
+  return {
+    id: data.id,
+    bank_name: data.bank_name,
+    bank_code: data.bank_code,
+    id_type: data.id_type,
+    id_number: data.id_number,
+    phone: data.phone,
+    account_holder: data.account_holder,
+    instructions: data.instructions,
+    is_active: data.is_active,
+    updated_at: data.updated_at,
+  };
+}
+
+/**
+ * Obtiene el historial reciente de tasas para el panel de administración.
+ */
+export async function getAllExchangeRates(limit = 15) {
+  const supabase = await createClient();
+
+  const { data, error } = await supabase
+    .from("exchange_rates")
+    .select("id, currency_pair, rate, source, source_updated_at, created_at, created_by, is_active, status, variation_percentage")
+    .eq("currency_pair", "USD_VES")
+    .order("created_at", { ascending: false })
+    .limit(limit);
+
+  if (error || !data) {
+    return [];
+  }
+
+  return data;
+}
+
+/**
+ * Obtiene las tasas retenidas por variación > 15% para revisión administrativa.
+ */
+export async function getPendingExchangeRates() {
+  const supabase = await createClient();
+
+  const { data, error } = await supabase
+    .from("exchange_rates")
+    .select("id, currency_pair, rate, source, source_updated_at, created_at, is_active, status, variation_percentage")
+    .eq("currency_pair", "USD_VES")
+    .eq("status", "pending_approval")
+    .order("created_at", { ascending: false });
+
+  if (error || !data) {
+    return [];
+  }
+
+  return data;
+}
+

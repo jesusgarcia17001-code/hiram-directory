@@ -366,6 +366,10 @@ export interface Database {
           reviewed_at: string | null;
           rejection_reason: string | null;
           created_at: string;
+          amount_usd: number | null;
+          rate_used: number | null;
+          amount_bs: number | null;
+          rate_date: string | null;
         };
         Insert: {
           id?: string;
@@ -380,6 +384,10 @@ export interface Database {
           reviewed_at?: string | null;
           rejection_reason?: string | null;
           created_at?: string;
+          amount_usd?: number | null;
+          rate_used?: number | null;
+          amount_bs?: number | null;
+          rate_date?: string | null;
         };
         Update: {
           id?: string;
@@ -394,6 +402,94 @@ export interface Database {
           reviewed_at?: string | null;
           rejection_reason?: string | null;
           created_at?: string;
+          amount_usd?: number | null;
+          rate_used?: number | null;
+          amount_bs?: number | null;
+          rate_date?: string | null;
+        };
+        Relationships: [];
+      };
+      exchange_rates: {
+        Row: {
+          id: string;
+          currency_pair: string;
+          rate: number;
+          source: string;
+          source_updated_at: string;
+          created_at: string;
+          created_by: string | null;
+          is_active: boolean;
+          status: string;
+          variation_percentage: number | null;
+          metadata: Json;
+        };
+        Insert: {
+          id?: string;
+          currency_pair?: string;
+          rate: number;
+          source: string;
+          source_updated_at?: string;
+          created_at?: string;
+          created_by?: string | null;
+          is_active?: boolean;
+          status?: string;
+          variation_percentage?: number | null;
+          metadata?: Json;
+        };
+        Update: {
+          id?: string;
+          currency_pair?: string;
+          rate?: number;
+          source?: string;
+          source_updated_at?: string;
+          created_at?: string;
+          created_by?: string | null;
+          is_active?: boolean;
+          status?: string;
+          variation_percentage?: number | null;
+          metadata?: Json;
+        };
+        Relationships: [];
+      };
+      payment_settings: {
+        Row: {
+          id: string;
+          bank_name: string;
+          bank_code: string;
+          id_type: string;
+          id_number: string;
+          phone: string;
+          account_holder: string;
+          instructions: string;
+          is_active: boolean;
+          updated_at: string;
+          updated_by: string | null;
+        };
+        Insert: {
+          id?: string;
+          bank_name: string;
+          bank_code?: string;
+          id_type?: string;
+          id_number?: string;
+          phone?: string;
+          account_holder?: string;
+          instructions?: string;
+          is_active?: boolean;
+          updated_at?: string;
+          updated_by?: string | null;
+        };
+        Update: {
+          id?: string;
+          bank_name?: string;
+          bank_code?: string;
+          id_type?: string;
+          id_number?: string;
+          phone?: string;
+          account_holder?: string;
+          instructions?: string;
+          is_active?: boolean;
+          updated_at?: string;
+          updated_by?: string | null;
         };
         Relationships: [];
       };
@@ -684,6 +780,23 @@ export interface Database {
           p_payment_id: string;
           p_decision: string;
           p_rejection_reason?: string | null;
+        };
+        Returns: Json;
+      };
+      admin_set_manual_rate: {
+        Args: {
+          p_rate: number;
+        };
+        Returns: Json;
+      };
+      admin_revert_to_automated_rate: {
+        Args: Record<string, never>;
+        Returns: Json;
+      };
+      admin_review_pending_rate: {
+        Args: {
+          p_rate_id: string;
+          p_decision: string;
         };
         Returns: Json;
       };
