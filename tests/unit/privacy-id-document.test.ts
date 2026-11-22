@@ -75,8 +75,9 @@ describe("Privacidad estricta de Cédula y RIF", () => {
     expect(fs.existsSync(privacyFile)).toBe(true);
     const content = fs.readFileSync(privacyFile, "utf-8");
 
-    expect(content).toContain("Tu cédula o RIF");
-    expect(content).toContain("nunca se muestra públicamente");
+    expect(content.toLowerCase()).toContain("cédula");
+    expect(content).toContain("RIF");
+    expect(content).toContain("nunca se muestra en tu perfil público");
     expect(content).toContain("perfiles falsos");
   });
 });

@@ -66,6 +66,9 @@ test.describe("Fase 2: Autenticación y Protección de Rutas", () => {
     await expect(page.getByLabel("Correo electrónico")).toBeVisible();
     await expect(page.getByLabel("Contraseña", { exact: true })).toBeVisible();
     await expect(page.getByLabel("Confirmar contraseña")).toBeVisible();
+    await expect(page.getByLabel(/acepto los términos/i)).toBeVisible();
+    await expect(page.getByRole("link", { name: "Términos" })).toBeVisible();
+    await expect(page.getByRole("link", { name: "Política de Privacidad" })).toBeVisible();
     await expect(
       page.getByRole("button", { name: "Crear cuenta gratis" })
     ).toBeVisible();

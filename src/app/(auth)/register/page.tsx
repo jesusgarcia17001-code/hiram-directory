@@ -87,6 +87,46 @@ export default function RegisterPage() {
           error={state?.fieldErrors?.confirm_password}
         />
 
+        {/* Casilla obligatoria de Términos y Política de Privacidad */}
+        <div className="pt-1">
+          <div className="flex items-start gap-2.5">
+            <input
+              type="checkbox"
+              id="terms_accepted"
+              name="terms_accepted"
+              required
+              className="mt-0.5 h-4 w-4 rounded border-slate-300 text-brand-primary focus:ring-brand-accent cursor-pointer"
+            />
+            <label
+              htmlFor="terms_accepted"
+              className="text-xs text-brand-text-muted leading-relaxed cursor-pointer select-none"
+            >
+              Acepto los{" "}
+              <Link
+                href="/terminos"
+                target="_blank"
+                className="font-semibold text-brand-primary hover:underline"
+              >
+                Términos
+              </Link>{" "}
+              y la{" "}
+              <Link
+                href="/privacidad"
+                target="_blank"
+                className="font-semibold text-brand-primary hover:underline"
+              >
+                Política de Privacidad
+              </Link>
+              .
+            </label>
+          </div>
+          {state?.fieldErrors?.terms_accepted && (
+            <p className="text-xs text-red-500 font-medium mt-1">
+              {state.fieldErrors.terms_accepted}
+            </p>
+          )}
+        </div>
+
         <Button type="submit" className="w-full mt-2" isLoading={isPending}>
           Crear cuenta gratis
         </Button>

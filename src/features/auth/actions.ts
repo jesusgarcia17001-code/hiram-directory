@@ -24,6 +24,9 @@ export async function signUpAction(
     email: formData.get("email"),
     password: formData.get("password"),
     confirm_password: formData.get("confirm_password"),
+    terms_accepted:
+      formData.get("terms_accepted") === "on" ||
+      formData.get("terms_accepted") === "true",
   };
 
   const parsed = registerSchema.safeParse(rawData);
@@ -50,6 +53,7 @@ export async function signUpAction(
     options: {
       data: {
         full_name,
+        terms_accepted_at: new Date().toISOString(),
       },
     },
   });

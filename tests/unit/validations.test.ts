@@ -66,11 +66,32 @@ describe("Esquemas de Autenticación (auth.ts)", () => {
       email: "pedro@test.com",
       password: "password123",
       confirm_password: "passwordDiferente",
+      terms_accepted: true,
     });
     expect(result.success).toBe(false);
     if (!result.success) {
       expect(result.error.issues[0].message).toBe("Las contraseñas no coinciden.");
     }
+  });
+
+  it("registerSchema debe rechazar si no se aceptan los Términos y la Política de Privacidad", () => {
+    const resultWithoutTerms = registerSchema.safeParse({
+      full_name: "Pedro Pérez",
+      email: "pedro@test.com",
+      password: "password123",
+      confirm_password: "password123",
+      terms_accepted: false,
+    });
+    expect(resultWithoutTerms.success).toBe(false);
+
+    const resultValid = registerSchema.safeParse({
+      full_name: "Pedro Pérez",
+      email: "pedro@test.com",
+      password: "password123",
+      confirm_password: "password123",
+      terms_accepted: true,
+    });
+    expect(resultValid.success).toBe(true);
   });
 });
 

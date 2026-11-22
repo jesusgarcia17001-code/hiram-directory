@@ -70,11 +70,20 @@ export function Footer() {
           </div>
         </div>
 
-        {/* COPYRIGHT */}
-        <div className="mt-12 pt-6 border-t border-white/10 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-slate-400">
+        {/* COPYRIGHT Y ENLACES LEGALES */}
+        <div className="mt-12 pt-6 border-t border-white/10 flex flex-col md:flex-row items-center justify-between gap-4 text-xs text-slate-400">
           <p>
             © {currentYear} {brand.name}. Todos los derechos reservados.
           </p>
+          <div className="flex items-center gap-3 font-medium text-slate-300">
+            <Link href="/terminos" className="hover:text-white hover:underline transition-colors">
+              Términos y Condiciones
+            </Link>
+            <span>•</span>
+            <Link href="/privacidad" className="hover:text-white hover:underline transition-colors">
+              Política de Privacidad
+            </Link>
+          </div>
           <p>
             Desarrollado para el crecimiento del trabajo técnico en {brand.coverage.state}.
           </p>
