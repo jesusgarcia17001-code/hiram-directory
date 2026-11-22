@@ -5,16 +5,19 @@ import {
   getPaymentSettings,
   getPendingExchangeRates,
 } from "@/services/payments";
+import { getBillingStatus } from "@/services/billing";
 import { PaymentSettingsForm } from "@/features/admin/components/PaymentSettingsForm";
 import { ExchangeRateManager } from "@/features/admin/components/ExchangeRateManager";
+import { LaunchModeManager } from "@/features/admin/components/LaunchModeManager";
 
 export const dynamic = "force-dynamic";
 
 export default async function AdminAjustesPagoPage() {
-  const [activeRate, paymentSettings, pendingRates] = await Promise.all([
+  const [activeRate, paymentSettings, pendingRates, billingStatus] = await Promise.all([
     getActiveExchangeRate(),
     getPaymentSettings(),
     getPendingExchangeRates(),
+    getBillingStatus(),
   ]);
 
   return (
@@ -29,18 +32,32 @@ export default async function AdminAjustesPagoPage() {
           <span className="text-brand-text-primary font-medium">Ajustes de Pago y Tasa</span>
         </nav>
         <h1 className="text-2xl font-bold text-brand-text-primary tracking-tight">
-          Ajustes de Pago Móvil y Tasa BCV
+          Ajustes de Cobro, Pago Móvil y Tasa BCV
         </h1>
         <p className="text-xs text-brand-text-muted mt-0.5">
-          Configura la cuenta receptora de Pago Móvil y supervisa la tasa de cambio oficial aplicada a las suscripciones.
+          Controla la activación de cobros, configura la cuenta de Pago Móvil y supervisa la tasa de cambio oficial.
         </p>
       </div>
 
-      {/* Sección 1: Tasa de Cambio y Control */}
+      {/* Sección 1: Modo Lanzamiento e Interruptor de Cobro */}
       <section className="space-y-3">
         <div className="border-b border-brand-border pb-2">
           <h2 className="text-lg font-bold text-brand-text-primary">
-            1. Control de Tasa Oficial (BCV / USD → VES)
+            1. Modo Lanzamiento e Interruptor de Cobro
+          </h2>
+          <p className="text-xs text-brand-text-muted">
+            Permite mantener la plataforma 100% gratuita para profesionales y visitantes, y activar el cobro con un clic cuando estés listo.
+          </p>
+        </div>
+
+        <LaunchModeManager initialStatus={billingStatus} />
+      </section>
+
+      {/* Sección 2: Tasa de Cambio y Control */}
+      <section className="space-y-3 pt-2">
+        <div className="border-b border-brand-border pb-2">
+          <h2 className="text-lg font-bold text-brand-text-primary">
+            2. Control de Tasa Oficial (BCV / USD → VES)
           </h2>
           <p className="text-xs text-brand-text-muted">
             La tasa se sincroniza automáticamente cada día vía CotizaVE. Puedes fijar una tasa manual en cualquier momento.
@@ -50,11 +67,11 @@ export default async function AdminAjustesPagoPage() {
         <ExchangeRateManager activeRate={activeRate} pendingRates={pendingRates} />
       </section>
 
-      {/* Sección 2: Ajustes de Pago Móvil */}
-      <section className="space-y-3 pt-4">
+      {/* Sección 3: Ajustes de Pago Móvil */}
+      <section className="space-y-3 pt-2">
         <div className="border-b border-brand-border pb-2">
           <h2 className="text-lg font-bold text-brand-text-primary">
-            2. Datos Bancarios de Pago Móvil
+            3. Datos Bancarios de Pago Móvil
           </h2>
           <p className="text-xs text-brand-text-muted">
             Estos son los datos que los técnicos y empresas verán en su pantalla al momento de pagar su plan.

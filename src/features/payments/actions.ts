@@ -76,11 +76,10 @@ export async function submitPaymentAction(
     // 1. Subir comprobante al bucket privado
     const uploadResult = await uploadReceiptFile(parsed.data.professional_id, file);
 
-    // 2. Invocar RPC seguro en Supabase
-    const { data, error } = await supabase.rpc("submit_manual_payment", {
+    // 2. Invocar RPC seguro en Supabase (la función calcula el monto en la BD con el precio del plan y la tasa activa)
+    const { data, error } = await (supabase.rpc as any)("submit_manual_payment", {
       p_professional_id: parsed.data.professional_id,
       p_plan_id: parsed.data.plan_id,
-      p_amount: parsed.data.amount,
       p_payment_method: parsed.data.payment_method,
       p_reference_number: parsed.data.reference_number,
       p_receipt_storage_path: uploadResult.storagePath,

@@ -744,6 +744,7 @@ export interface Database {
           p_professional_id: string;
           p_visitor_hash: string;
           p_dedupe_key: string;
+          p_actor_id?: string | null;
         };
         Returns: boolean;
       };
@@ -753,6 +754,7 @@ export interface Database {
           p_channel: string;
           p_visitor_hash: string;
           p_dedupe_key: string;
+          p_actor_id?: string | null;
         };
         Returns: Json;
       };
@@ -766,12 +768,23 @@ export interface Database {
         Args: {
           p_professional_id: string;
           p_plan_id: string;
-          p_amount: number;
           p_payment_method: string;
           p_reference_number: string;
           p_receipt_storage_path: string;
           p_receipt_mime_type: string;
           p_receipt_size_bytes: number;
+        };
+        Returns: Json;
+      };
+      get_billing_status: {
+        Args: Record<string, never>;
+        Returns: Json;
+      };
+      admin_set_billing_enabled: {
+        Args: {
+          p_enabled: boolean;
+          p_banner_text?: string | null;
+          p_banner_enabled?: boolean | null;
         };
         Returns: Json;
       };

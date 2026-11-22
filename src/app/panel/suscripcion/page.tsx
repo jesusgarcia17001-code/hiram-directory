@@ -8,6 +8,7 @@ import {
   getActiveExchangeRate,
   getPaymentSettings,
 } from "@/services/payments";
+import { getBillingStatus } from "@/services/billing";
 import { PaymentForm } from "@/features/payments/PaymentForm";
 import { ReceiptViewerButton } from "@/components/payments/ReceiptViewerModal";
 
@@ -50,15 +51,17 @@ export default async function PanelSuscripcionPage() {
     );
   }
 
-  const [plans, info, activeRate, paymentSettings] = await Promise.all([
+  const [plans, info, activeRate, paymentSettings, billingStatus] = await Promise.all([
     getActivePlans(),
     getProfessionalSubscriptionInfo(professional.id),
     getActiveExchangeRate(),
     getPaymentSettings(),
+    getBillingStatus(),
   ]);
 
   const { subscription, payments } = info;
   const isCurrentlyActive = subscription?.isCurrentlyActive;
+  const isBillingActive = billingStatus.billingEnabled;
 
   // Calcular días restantes si la suscripción está activa
   let daysRemaining = 0;
@@ -97,12 +100,20 @@ export default async function PanelSuscripcionPage() {
             </span>
             <div className="flex items-center gap-3">
               <h2 className="text-xl font-extrabold text-brand-text-primary">
-                {isCurrentlyActive ? "Suscripción Activa" : "Plan Gratuito"}
+                {isCurrentlyActive
+                  ? "Suscripción Activa"
+                  : !isBillingActive
+                  ? "Modo Lanzamiento Gratuito"
+                  : "Plan Gratuito"}
               </h2>
               {isCurrentlyActive ? (
                 <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">
                   <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
                   Vigente ({daysRemaining} {daysRemaining === 1 ? "día restante" : "días restantes"})
+                </span>
+              ) : !isBillingActive ? (
+                <span className="inline-flex items-center px-2.5 py-0.5 rounded text-xs font-bold bg-amber-50 text-amber-700 border border-amber-200">
+                  100% Gratuito durante lanzamiento
                 </span>
               ) : (
                 <span className="inline-flex items-center px-2.5 py-0.5 rounded text-xs font-semibold bg-slate-100 text-slate-700 border border-slate-200">
@@ -110,7 +121,11 @@ export default async function PanelSuscripcionPage() {
                 </span>
               )}
             </div>
-            {isCurrentlyActive && subscription?.ends_at && (
+            {!isBillingActive && !isCurrentlyActive ? (
+              <p className="text-xs text-brand-text-muted">
+                Durante el lanzamiento oficial de {brand.name}, todos los contactos y beneficios son gratuitos. No requieres pagar nada.
+              </p>
+            ) : isCurrentlyActive && subscription?.ends_at ? (
               <p className="text-xs text-brand-text-muted">
                 Tu plan actual vencerá el{" "}
                 <span className="font-semibold text-brand-text-primary">
@@ -122,7 +137,7 @@ export default async function PanelSuscripcionPage() {
                 </span>
                 .
               </p>
-            )}
+            ) : null}
           </div>
 
           <div className="text-left sm:text-right">
@@ -136,24 +151,43 @@ export default async function PanelSuscripcionPage() {
         </div>
       </div>
 
-      {/* Formulario de Reporte de Pago */}
-      <div className="p-6 sm:p-8 rounded-2xl bg-brand-surface border border-brand-border shadow-xs space-y-6">
-        <div>
-          <h2 className="text-lg font-bold text-brand-text-primary">
-            Reportar Pago Manual
-          </h2>
-          <p className="text-xs text-brand-text-muted mt-1">
-            Realiza tu pago móvil o transferencia y adjunta la captura para que un administrador active tu cuenta.
-          </p>
-        </div>
+      {/* Formulario de Reporte de Pago o Aviso de Lanzamiento */}
+      {isBillingActive ? (
+        <div className="p-6 sm:p-8 rounded-2xl bg-brand-surface border border-brand-border shadow-xs space-y-6">
+          <div>
+            <h2 className="text-lg font-bold text-brand-text-primary">
+              Reportar Pago Manual
+            </h2>
+            <p className="text-xs text-brand-text-muted mt-1">
+              Realiza tu pago móvil o transferencia y adjunta la captura para que un administrador active tu cuenta.
+            </p>
+          </div>
 
-        <PaymentForm
-          professionalId={professional.id}
-          plans={plans}
-          activeRate={activeRate}
-          paymentSettings={paymentSettings}
-        />
-      </div>
+          <PaymentForm
+            professionalId={professional.id}
+            plans={plans}
+            activeRate={activeRate}
+            paymentSettings={paymentSettings}
+          />
+        </div>
+      ) : (
+        <div className="p-8 rounded-2xl bg-gradient-to-br from-amber-500/10 via-amber-500/5 to-transparent border border-amber-500/20 text-center space-y-4">
+          <div className="w-14 h-14 mx-auto rounded-2xl bg-amber-500/20 text-amber-500 flex items-center justify-center text-3xl shadow-sm">
+            🎉
+          </div>
+          <div className="max-w-lg mx-auto space-y-2">
+            <h2 className="text-xl font-bold text-brand-text-primary">
+              ¡Plataforma en Fase de Lanzamiento Gratuita!
+            </h2>
+            <p className="text-sm text-brand-text-muted leading-relaxed">
+              Durante esta etapa de inicio, todos los profesionales aprobados tienen visibilidad completa y botones de contacto ilimitados (WhatsApp y llamadas) sin costo alguno.
+            </p>
+            <p className="text-xs text-amber-700 bg-amber-50 border border-amber-200 py-2 px-3 rounded-xl inline-block mt-2">
+              💡 El módulo de pagos se encuentra temporalmente deshabilitado. No necesitas realizar ningún depósito ni transferencia.
+            </p>
+          </div>
+        </div>
+      )}
 
       {/* Historial de Pagos Reportados */}
       <div className="p-6 sm:p-8 rounded-2xl bg-brand-surface border border-brand-border shadow-xs space-y-4">

@@ -185,7 +185,7 @@ $$;
 
 -- ---------------------------------------------------------------------
 -- 7. ENDURECIMIENTO Y MODO LANZAMIENTO: record_profile_visit
--- (Firma con p_actor_id, sin auth.uid(), sin captura silenciosa de errores, SOLO service_role)
+-- (Firma con p_actor_id, sin contexto anonimo de sesion, sin captura silenciosa de errores, SOLO service_role)
 -- ---------------------------------------------------------------------
 drop function if exists public.record_profile_visit(uuid, text, text);
 drop function if exists public.record_profile_visit(uuid, text, text, uuid);
@@ -213,7 +213,7 @@ begin
     return false;
   end if;
 
-  -- Comprobar si p_actor_id es dueño o admin (sin usar auth.uid())
+  -- Comprobar si p_actor_id es dueño o admin
   if p_actor_id is not null then
     if exists (
       select 1 from public.professionals
@@ -246,7 +246,7 @@ begin
     return false;
   end if;
 
-  -- Se eliminó el bloque "exception when others then return false" para propagar errores reales
+  -- Errores no silenciados para propagar excepciones reales al servidor
   insert into public.profile_events (
     professional_id,
     event_type,
@@ -278,7 +278,7 @@ grant execute on function public.record_profile_visit(uuid, text, text, uuid) to
 
 -- ---------------------------------------------------------------------
 -- 8. ENDURECIMIENTO Y MODO LANZAMIENTO: reveal_professional_contact
--- (Firma con p_actor_id, sin auth.uid(), sin raw_urlencode, SOLO service_role)
+-- (Firma con p_actor_id, sin contexto de sesion anonimo, sin raw_urlencode, SOLO service_role)
 -- ---------------------------------------------------------------------
 drop function if exists public.reveal_professional_contact(uuid, text, text, text);
 drop function if exists public.reveal_professional_contact(uuid, text, text, text, uuid);
@@ -333,7 +333,7 @@ begin
     );
   end if;
 
-  -- Comprobar si p_actor_id es dueño o admin (sin usar auth.uid())
+  -- Comprobar si p_actor_id es dueño o admin
   if p_actor_id is not null then
     if v_prof.owner_id = p_actor_id or exists (
       select 1 from public.user_profiles

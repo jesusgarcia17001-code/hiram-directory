@@ -3,6 +3,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { PublicProfessionalSummary } from "@/services/directory";
 import { getPublicMediaUrl } from "@/lib/storage-public";
+import { brand } from "@/config/brand";
 
 interface ProfessionalCardProps {
   professional: PublicProfessionalSummary;
@@ -97,7 +98,7 @@ export function ProfessionalCard({
       <div className="pt-4 border-t border-brand-border flex items-center justify-between">
         <span className="text-[11px] text-emerald-600 font-semibold flex items-center gap-1">
           <span className="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
-          Verificado por Hiram
+          Verificado por {brand.shortName}
         </span>
 
         <Link

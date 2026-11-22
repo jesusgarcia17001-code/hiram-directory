@@ -4,8 +4,8 @@ import manifest from "@/app/manifest";
 
 describe("Brand Configuration (CLAUDE.md)", () => {
   it("debe contener el nombre provisional oficial", () => {
-    expect(brand.name).toBe("HIRAM Directory");
-    expect(brand.shortName).toBe("HIRAM");
+    expect(brand.name).toBe("OFIR Servicios");
+    expect(brand.shortName).toBe("OFIR");
   });
 
   it("debe definir la cobertura inicial en Anzoátegui", () => {

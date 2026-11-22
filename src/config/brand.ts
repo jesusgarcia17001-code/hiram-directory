@@ -8,9 +8,9 @@
 
 export const brand = {
   // Identidad
-  name: "HIRAM Directory",
-  shortName: "HIRAM",
-  owner: "HIRAM",
+  name: "OFIR Servicios",
+  shortName: "OFIR",
+  owner: "OFIR Servicios",
   tagline: "Directorio de técnicos y servicios profesionales en Anzoátegui",
   description:
     "Encuentra técnicos certificados y prestadores de servicios de confianza en Puerto La Cruz, Barcelona y todo el estado Anzoátegui.",
@@ -24,7 +24,7 @@ export const brand = {
 
   // Logotipo e isotipo (referencias a public/)
   logo: {
-    text: "HIRAM",
+    text: "OFIR",
     symbol: "/icons/icon-192.png",
     favicon: "/favicon.ico",
   },
@@ -76,7 +76,7 @@ export const brand = {
 
   // Contacto y soporte institucional
   contact: {
-    supportEmail: "soporte@hiramdirectory.com",
+    supportEmail: "soporte@ofirservicios.com",
   },
 } as const;
 

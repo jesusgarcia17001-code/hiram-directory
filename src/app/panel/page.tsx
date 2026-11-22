@@ -3,6 +3,7 @@ import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { brand } from "@/config/brand";
 import { getProfessionalMetrics } from "@/services/metrics";
+import { getBillingStatus } from "@/services/billing";
 
 export default async function PanelDashboardPage() {
   const supabase = await createClient();
@@ -20,12 +21,16 @@ export default async function PanelDashboardPage() {
     .eq("owner_id", user!.id)
     .maybeSingle();
 
-  // Consultar métricas en tiempo real si el profesional existe
-  const metrics = professional ? await getProfessionalMetrics(professional.id) : null;
+  // Consultar métricas en tiempo real y estado de lanzamiento en paralelo
+  const [metrics, billingStatus] = await Promise.all([
+    professional ? getProfessionalMetrics(professional.id) : null,
+    getBillingStatus(),
+  ]);
 
   const quota = metrics?.quota;
   const stats = metrics?.stats;
   const subscription = metrics?.subscription;
+  const isBillingActive = billingStatus.billingEnabled;
 
   const visitPercent = quota
     ? Math.min(100, Math.round((quota.visits / quota.visit_limit) * 100))
@@ -35,7 +40,7 @@ export default async function PanelDashboardPage() {
     ? Math.min(100, Math.round((quota.contacts / quota.contact_limit) * 100))
     : 0;
 
-  const isContactsEnabled = quota?.is_contacts_enabled ?? true;
+  const isContactsEnabled = isBillingActive ? (quota?.is_contacts_enabled ?? true) : true;
 
   return (
     <div className="space-y-6">
@@ -145,6 +150,10 @@ export default async function PanelDashboardPage() {
                   <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-brand-surface-soft text-brand-primary border border-brand-primary/20">
                     Suscripción Activa
                   </span>
+                ) : !isBillingActive ? (
+                  <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-amber-50 text-amber-700 border border-amber-200">
+                    Lanzamiento Gratuito
+                  </span>
                 ) : (
                   <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-slate-100 text-slate-700 border border-slate-200">
                     Plan Gratuito
@@ -153,7 +162,16 @@ export default async function PanelDashboardPage() {
               </div>
 
               {/* Aviso si la cuota está agotada */}
-              {!isContactsEnabled && !subscription?.is_active ? (
+              {!isBillingActive ? (
+                <div className="p-3 bg-amber-50 rounded-xl border border-amber-200 space-y-1">
+                  <p className="text-xs font-bold text-amber-900 flex items-center gap-1">
+                    <span>🎉</span> Modo Lanzamiento Oficial
+                  </p>
+                  <p className="text-[11px] text-amber-700 leading-relaxed">
+                    Contactos 100% gratuitos e ilimitados. Tu número y WhatsApp están siempre visibles sin requerir suscripción.
+                  </p>
+                </div>
+              ) : !isContactsEnabled && !subscription?.is_active ? (
                 <div className="p-3 bg-red-50 rounded-xl border border-red-200 space-y-1.5">
                   <p className="text-xs font-bold text-red-900 flex items-center gap-1">
                     <span>⛔</span> Contactos Bloqueados
@@ -192,6 +210,14 @@ export default async function PanelDashboardPage() {
                 <p className="text-xs text-brand-text-muted mt-0.5">
                   La cuota inicial se calcula sobre visitantes únicos desde la creación del perfil y no se reinicia mensualmente.
                 </p>
+                {!isBillingActive && (
+                  <div className="mt-2 p-2.5 bg-amber-50 rounded-lg border border-amber-200 text-xs text-amber-800 flex items-center gap-2">
+                    <span>ℹ️</span>
+                    <span>
+                      <strong>Modo Lanzamiento Activo:</strong> La actividad actual no consume tu cuota gratuita. Al activarse el cobro formal, la cuota iniciará en 0.
+                    </span>
+                  </div>
+                )}
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
