@@ -6,13 +6,25 @@ import { getActiveCategories, getListingCombinations } from "@/services/director
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const supabase = await createClient();
 
-  // 1. Portada principal
+  // 1. Portada principal y páginas institucionales
   const staticUrls: MetadataRoute.Sitemap = [
     {
       url: `${site.url}`,
       lastModified: new Date(),
       changeFrequency: "daily",
       priority: 1.0,
+    },
+    {
+      url: `${site.url}/terminos`,
+      lastModified: new Date(),
+      changeFrequency: "monthly",
+      priority: 0.5,
+    },
+    {
+      url: `${site.url}/privacidad`,
+      lastModified: new Date(),
+      changeFrequency: "monthly",
+      priority: 0.5,
     },
   ];
 

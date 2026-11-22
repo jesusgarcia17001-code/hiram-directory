@@ -5,7 +5,7 @@
 import { brand } from "./brand";
 
 export const site = {
-  url: process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000",
+  url: process.env.NEXT_PUBLIC_SITE_URL || "https://www.ofirservicios.com",
   defaultLocale: "es-VE",
   defaultRegion: brand.coverage.state,
   defaultTitle: `${brand.name} | ${brand.tagline}`,
