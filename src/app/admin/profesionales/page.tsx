@@ -290,10 +290,20 @@ export default async function AdminProfesionalesPage({
                     })}
                   </span>
 
-                  <ProfessionalStatusButtons
-                    professionalId={p.id}
-                    currentStatus={p.status}
-                  />
+                  <div className="flex flex-wrap items-center gap-2">
+                    <Link
+                      href={`/admin/profesionales/${p.id}`}
+                      className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold text-amber-300 bg-amber-950/40 hover:bg-amber-900/60 border border-amber-800/80 rounded-xl transition-colors"
+                    >
+                      <span>✏️</span>
+                      <span>Editar Ficha</span>
+                    </Link>
+
+                    <ProfessionalStatusButtons
+                      professionalId={p.id}
+                      currentStatus={p.status}
+                    />
+                  </div>
                 </div>
               </div>
             );
