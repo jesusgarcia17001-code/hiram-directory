@@ -29,6 +29,11 @@ interface ProfessionalData {
   experience_years: number | null;
   locality_id: string | null;
   description: string | null;
+  contact_person_name?: string | null;
+  instagram_handle?: string | null;
+  tiktok_handle?: string | null;
+  facebook_url?: string | null;
+  website_url?: string | null;
 }
 
 interface ContactData {
@@ -207,6 +212,57 @@ export function AdminProfessionalEditForm({
             defaultValue={professional.experience_years ?? 5}
             required
             error={state?.errors?.experience_years?.[0]}
+          />
+        </div>
+      </div>
+
+      {/* Persona de Contacto y Redes Sociales */}
+      <div className="bg-slate-950/70 p-4 rounded-xl border border-slate-800 space-y-4">
+        <h3 className="text-xs font-bold text-slate-300 uppercase tracking-wider">
+          Persona de Contacto y Redes Sociales (Opcional)
+        </h3>
+
+        <Input
+          label="Nombre y Apellido de Contacto"
+          name="contact_person_name"
+          defaultValue={professional.contact_person_name || ""}
+          placeholder="Ej: Carlos Pérez"
+          error={state?.errors?.contact_person_name?.[0]}
+        />
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <Input
+            label="Instagram"
+            name="instagram_handle"
+            defaultValue={professional.instagram_handle || ""}
+            placeholder="Ej: @tu_negocio o tu_negocio"
+            error={state?.errors?.instagram_handle?.[0]}
+          />
+
+          <Input
+            label="TikTok"
+            name="tiktok_handle"
+            defaultValue={professional.tiktok_handle || ""}
+            placeholder="Ej: @tu_negocio o tu_negocio"
+            error={state?.errors?.tiktok_handle?.[0]}
+          />
+        </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <Input
+            label="Página de Facebook"
+            name="facebook_url"
+            defaultValue={professional.facebook_url || ""}
+            placeholder="https://facebook.com/tu-pagina"
+            error={state?.errors?.facebook_url?.[0]}
+          />
+
+          <Input
+            label="Sitio Web Oficial"
+            name="website_url"
+            defaultValue={professional.website_url || ""}
+            placeholder="https://www.tuempresa.com"
+            error={state?.errors?.website_url?.[0]}
           />
         </div>
       </div>

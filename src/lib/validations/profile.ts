@@ -16,7 +16,7 @@ export const VENEZUELA_PHONE_REGEX = /^\+58[1-9][0-9]{9}$/;
  */
 export function normalizePhoneToE164(phone: string): string {
   if (!phone) return "";
-  let cleaned = phone.replace(/[\s\-\(\)\.]/g, "");
+  const cleaned = phone.replace(/[\s\-\(\)\.]/g, "");
 
   if (cleaned.startsWith("+58")) {
     return cleaned;
@@ -31,6 +31,56 @@ export function normalizePhoneToE164(phone: string): string {
     return `+58${cleaned}`;
   }
   return cleaned;
+}
+
+/**
+ * Normaliza un handle de red social (Instagram, TikTok).
+ * Elimina espacios, arroba inicial (@), y si el usuario pegó la URL completa,
+ * extrae limpiamente el nombre de usuario.
+ * Ejemplos:
+ * - "@carlos_plomero" -> "carlos_plomero"
+ * - "  pedro.tecnico " -> "pedro.tecnico"
+ * - "https://www.instagram.com/juan_frio/" -> "juan_frio"
+ * - "https://tiktok.com/@maria.clima" -> "maria.clima"
+ */
+export function normalizeSocialHandle(handle: string): string {
+  if (!handle) return "";
+  let cleaned = handle.trim();
+  // Quitar URL si la pegaron completa
+  cleaned = cleaned.replace(/^https?:\/\/(?:www\.)?(?:instagram\.com|tiktok\.com)\/@?/i, "");
+  // Quitar barras finales o parámetros
+  cleaned = cleaned.replace(/\/.*$/, "").replace(/\?.*$/, "");
+  // Quitar @ iniciales y espacios
+  cleaned = cleaned.replace(/^@+/, "").trim();
+  return cleaned;
+}
+
+export const SOCIAL_HANDLE_REGEX = /^[a-zA-Z0-9._]{1,30}$/;
+
+/**
+ * Validador estricto de URL HTTPS para Facebook y sitios web.
+ * Rechaza terminantemente esquemas peligrosos como javascript:, data:, vbscript:, http:, etc.
+ */
+export function isValidHttpsUrl(url: string): boolean {
+  if (!url) return true;
+  const trimmed = url.trim();
+  const lower = trimmed.toLowerCase();
+  if (
+    lower.startsWith("javascript:") ||
+    lower.startsWith("data:") ||
+    lower.startsWith("vbscript:")
+  ) {
+    return false;
+  }
+  if (!lower.startsWith("https://")) {
+    return false;
+  }
+  try {
+    const parsed = new URL(trimmed);
+    return parsed.protocol === "https:";
+  } catch {
+    return false;
+  }
 }
 
 /**
@@ -108,6 +158,56 @@ export const profileSchema = z.object({
     .array(z.string())
     .max(20, "Máximo 20 zonas de servicio.")
     .default([]),
+  contact_person_name: z
+    .string()
+    .trim()
+    .max(80, "El nombre de contacto no puede superar los 80 caracteres.")
+    .refine(
+      (val) => val === "" || val.length >= 2,
+      "El nombre de la persona debe tener al menos 2 caracteres."
+    )
+    .optional()
+    .or(z.literal("")),
+  instagram_handle: z
+    .string()
+    .trim()
+    .transform((val) => normalizeSocialHandle(val))
+    .refine(
+      (val) => val === "" || SOCIAL_HANDLE_REGEX.test(val),
+      "El usuario de Instagram solo puede tener letras, números, punto o guion bajo (máx. 30 caracteres)."
+    )
+    .optional()
+    .or(z.literal("")),
+  tiktok_handle: z
+    .string()
+    .trim()
+    .transform((val) => normalizeSocialHandle(val))
+    .refine(
+      (val) => val === "" || SOCIAL_HANDLE_REGEX.test(val),
+      "El usuario de TikTok solo puede tener letras, números, punto o guion bajo (máx. 30 caracteres)."
+    )
+    .optional()
+    .or(z.literal("")),
+  facebook_url: z
+    .string()
+    .trim()
+    .max(200, "La dirección de Facebook no puede superar los 200 caracteres.")
+    .refine(
+      (val) => val === "" || isValidHttpsUrl(val),
+      "La dirección de Facebook debe comenzar con https:// y ser una URL válida."
+    )
+    .optional()
+    .or(z.literal("")),
+  website_url: z
+    .string()
+    .trim()
+    .max(200, "La dirección web no puede superar los 200 caracteres.")
+    .refine(
+      (val) => val === "" || isValidHttpsUrl(val),
+      "El sitio web debe comenzar con https:// y ser una URL segura."
+    )
+    .optional()
+    .or(z.literal("")),
 });
 
 export type ProfileInput = z.infer<typeof profileSchema>;

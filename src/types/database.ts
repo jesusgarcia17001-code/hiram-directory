@@ -194,6 +194,11 @@ export interface Database {
           provider_type: ProviderType;
           id_type: string | null;
           id_number: string | null;
+          contact_person_name: string | null;
+          instagram_handle: string | null;
+          tiktok_handle: string | null;
+          facebook_url: string | null;
+          website_url: string | null;
         };
         Insert: {
           id?: string;
@@ -216,6 +221,11 @@ export interface Database {
           provider_type?: ProviderType;
           id_type?: string | null;
           id_number?: string | null;
+          contact_person_name?: string | null;
+          instagram_handle?: string | null;
+          tiktok_handle?: string | null;
+          facebook_url?: string | null;
+          website_url?: string | null;
         };
         Update: {
           id?: string;
@@ -238,6 +248,11 @@ export interface Database {
           provider_type?: ProviderType;
           id_type?: string | null;
           id_number?: string | null;
+          contact_person_name?: string | null;
+          instagram_handle?: string | null;
+          tiktok_handle?: string | null;
+          facebook_url?: string | null;
+          website_url?: string | null;
         };
         Relationships: [];
       };
@@ -710,6 +725,11 @@ export interface Database {
           availability: string;
           created_at: string;
           provider_type: ProviderType;
+          contact_person_name: string | null;
+          instagram_handle: string | null;
+          tiktok_handle: string | null;
+          facebook_url: string | null;
+          website_url: string | null;
           contacts_enabled: boolean;
           is_featured: boolean;
         };

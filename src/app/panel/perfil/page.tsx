@@ -29,7 +29,7 @@ export default async function PanelPerfilPage() {
   const { data: prof } = await supabase
     .from("professionals")
     .select(
-      "id, provider_type, id_type, id_number, business_name, logo_path, locality_id, description, experience_years, status"
+      "id, provider_type, id_type, id_number, business_name, logo_path, locality_id, description, experience_years, status, contact_person_name, instagram_handle, tiktok_handle, facebook_url, website_url"
     )
     .eq("owner_id", user!.id)
     .maybeSingle();
@@ -100,6 +100,11 @@ export default async function PanelPerfilPage() {
         whatsapp_phone: contacts?.whatsapp_phone || "",
         phone: contacts?.phone || "",
         status: prof.status,
+        contact_person_name: prof.contact_person_name,
+        instagram_handle: prof.instagram_handle,
+        tiktok_handle: prof.tiktok_handle,
+        facebook_url: prof.facebook_url,
+        website_url: prof.website_url,
       }
     : null;
 

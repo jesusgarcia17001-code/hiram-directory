@@ -1,5 +1,5 @@
 import { createClient } from "@/lib/supabase/server";
-import type { Database, ProviderType } from "@/types/database";
+import type { ProviderType } from "@/types/database";
 
 export interface PublicProfessionalSummary {
   id: string;
@@ -16,6 +16,11 @@ export interface PublicProfessionalSummary {
   is_featured: boolean;
   category_name?: string;
   category_listing_slug?: string;
+  contact_person_name?: string | null;
+  instagram_handle?: string | null;
+  tiktok_handle?: string | null;
+  facebook_url?: string | null;
+  website_url?: string | null;
 }
 
 /**
@@ -117,7 +122,7 @@ export async function getApprovedProfessionalsByCategory(
   let query = supabase
     .from("professionals_public")
     .select(
-      "id, slug, business_name, description, logo_path, locality_id, service_areas, experience_years, provider_type, is_featured, created_at"
+      "id, slug, business_name, description, logo_path, locality_id, service_areas, experience_years, provider_type, is_featured, created_at, contact_person_name, instagram_handle, tiktok_handle, facebook_url, website_url"
     )
     .in("id", profIds);
 
@@ -163,6 +168,11 @@ export async function getApprovedProfessionalsByCategory(
       experience_years: p.experience_years,
       provider_type: p.provider_type,
       is_featured: p.is_featured,
+      contact_person_name: p.contact_person_name,
+      instagram_handle: p.instagram_handle,
+      tiktok_handle: p.tiktok_handle,
+      facebook_url: p.facebook_url,
+      website_url: p.website_url,
     };
   });
 }
@@ -177,7 +187,7 @@ export async function getApprovedProfessionalBySlug(slug: string) {
   const { data: prof } = await supabase
     .from("professionals_public")
     .select(
-      "id, slug, business_name, description, logo_path, locality_id, service_areas, experience_years, working_hours, availability, created_at, provider_type, contacts_enabled, is_featured"
+      "id, slug, business_name, description, logo_path, locality_id, service_areas, experience_years, working_hours, availability, created_at, provider_type, contacts_enabled, is_featured, contact_person_name, instagram_handle, tiktok_handle, facebook_url, website_url"
     )
     .eq("slug", slug)
     .maybeSingle();

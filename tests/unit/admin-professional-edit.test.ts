@@ -1,10 +1,8 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { adminUpdateProfessionalAction } from "@/features/admin/actions-professional-edit";
-import { normalizePhoneToE164, VENEZUELA_PHONE_REGEX } from "@/lib/validations/profile";
 
 // Mocks de Supabase
 const mockGetUser = vi.fn();
-const mockSingle = vi.fn();
 const mockFrom = vi.fn();
 const mockRpc = vi.fn();
 

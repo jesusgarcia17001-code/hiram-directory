@@ -40,6 +40,11 @@ export async function saveProfileAction(
     whatsapp_phone: formData.get("whatsapp_phone"),
     phone: formData.get("phone") || "",
     service_areas: formData.getAll("service_areas") as string[],
+    contact_person_name: formData.get("contact_person_name") || "",
+    instagram_handle: formData.get("instagram_handle") || "",
+    tiktok_handle: formData.get("tiktok_handle") || "",
+    facebook_url: formData.get("facebook_url") || "",
+    website_url: formData.get("website_url") || "",
   };
 
   // Validar con Zod
@@ -104,6 +109,11 @@ export async function saveProfileAction(
         experience_years: data.experience_years,
         description: data.description || null,
         service_areas: data.service_areas,
+        contact_person_name: data.contact_person_name || null,
+        instagram_handle: data.instagram_handle || null,
+        tiktok_handle: data.tiktok_handle || null,
+        facebook_url: data.facebook_url || null,
+        website_url: data.website_url || null,
       })
       .eq("id", existingProf.id);
 
@@ -142,6 +152,11 @@ export async function saveProfileAction(
         experience_years: data.experience_years,
         description: data.description || null,
         service_areas: data.service_areas,
+        contact_person_name: data.contact_person_name || null,
+        instagram_handle: data.instagram_handle || null,
+        tiktok_handle: data.tiktok_handle || null,
+        facebook_url: data.facebook_url || null,
+        website_url: data.website_url || null,
       })
       .select("id")
       .single();

@@ -38,6 +38,11 @@ interface InitialProfileData {
   whatsapp_phone?: string | null;
   phone?: string | null;
   status?: string;
+  contact_person_name?: string | null;
+  instagram_handle?: string | null;
+  tiktok_handle?: string | null;
+  facebook_url?: string | null;
+  website_url?: string | null;
 }
 
 interface ProfileFormProps {
@@ -387,11 +392,78 @@ export function ProfileForm({
         </div>
       </div>
 
-      {/* SECCIÓN 5: DESCRIPCIÓN Y BIO */}
+      {/* SECCIÓN 5: PERSONA DE CONTACTO Y REDES SOCIALES */}
+      <div className="bg-brand-surface p-6 rounded-2xl border border-brand-border shadow-xs space-y-5">
+        <div>
+          <h2 className="text-base font-bold text-brand-text-primary">
+            5. Persona de Contacto y Redes Sociales (Opcional)
+          </h2>
+          <p className="text-xs text-brand-text-muted mt-0.5">
+            Brinda mayor confianza mostrando quién atiende y los canales oficiales donde los clientes pueden ver tus trabajos.
+          </p>
+        </div>
+
+        <div className="space-y-4">
+          <Input
+            label="Nombre y Apellido de Contacto"
+            name="contact_person_name"
+            defaultValue={initialData?.contact_person_name || ""}
+            placeholder={
+              providerType === "company"
+                ? "Ej: Ing. Carlos Pérez (Gerente / Coordinador)"
+                : "Ej: Pedro Pérez"
+            }
+            error={state?.errors?.contact_person_name?.[0]}
+            helperText="Aparecerá en tu ficha pública para que los clientes sepan a quién se dirigen."
+          />
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <Input
+              label="Instagram"
+              name="instagram_handle"
+              defaultValue={initialData?.instagram_handle || ""}
+              placeholder="Ej: @tu_negocio o tu_negocio"
+              error={state?.errors?.instagram_handle?.[0]}
+              helperText="Usuario de Instagram. Se limpiará el @ automáticamente."
+            />
+
+            <Input
+              label="TikTok"
+              name="tiktok_handle"
+              defaultValue={initialData?.tiktok_handle || ""}
+              placeholder="Ej: @tu_negocio o tu_negocio"
+              error={state?.errors?.tiktok_handle?.[0]}
+              helperText="Usuario de TikTok sin espacios."
+            />
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <Input
+              label="Página de Facebook"
+              name="facebook_url"
+              defaultValue={initialData?.facebook_url || ""}
+              placeholder="https://facebook.com/tu-pagina"
+              error={state?.errors?.facebook_url?.[0]}
+              helperText="Enlace completo con https://"
+            />
+
+            <Input
+              label="Sitio Web Oficial"
+              name="website_url"
+              defaultValue={initialData?.website_url || ""}
+              placeholder="https://www.tuempresa.com"
+              error={state?.errors?.website_url?.[0]}
+              helperText="Tu dominio o página web externa (con https://)."
+            />
+          </div>
+        </div>
+      </div>
+
+      {/* SECCIÓN 6: DESCRIPCIÓN Y BIO */}
       <div className="bg-brand-surface p-6 rounded-2xl border border-brand-border shadow-xs space-y-4">
         <div>
           <h2 className="text-base font-bold text-brand-text-primary">
-            5. Descripción de tus Servicios
+            6. Descripción de tus Servicios
           </h2>
           <p className="text-xs text-brand-text-muted mt-0.5">
             Explica qué trabajos realizas, si atiendes emergencias, marcas con las que trabajas y tu garantía.

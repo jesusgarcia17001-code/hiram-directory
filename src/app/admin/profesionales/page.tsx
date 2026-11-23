@@ -17,7 +17,7 @@ export default async function AdminProfesionalesPage({
   let query = supabase
     .from("professionals")
     .select(
-      "id, owner_id, business_name, slug, provider_type, id_type, id_number, status, description, experience_years, locality_id, created_at"
+      "id, owner_id, business_name, slug, provider_type, id_type, id_number, status, description, experience_years, locality_id, created_at, contact_person_name"
     )
     .order("created_at", { ascending: false });
 
@@ -211,6 +211,11 @@ export default async function AdminProfesionalesPage({
                     <h2 className="text-xl font-black text-white">
                       {p.business_name}
                     </h2>
+                    {p.contact_person_name && (
+                      <p className="text-xs text-amber-400 font-medium">
+                        👤 Persona de Contacto: <span className="text-white">{p.contact_person_name}</span>
+                      </p>
+                    )}
                     <p className="text-xs text-slate-400">
                       Slug identificador: <code className="text-slate-300 font-mono">{p.slug}</code>
                     </p>

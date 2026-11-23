@@ -61,6 +61,15 @@ export function ProfessionalCard({
               <h3 className="text-base font-bold text-brand-primary hover:text-brand-accent-dark transition-colors mt-1">
                 <Link href={profileUrl}>{professional.business_name}</Link>
               </h3>
+
+              {professional.contact_person_name && (
+                <p className="text-xs text-brand-text-muted mt-0.5 flex items-center gap-1">
+                  <span>Contacto:</span>
+                  <span className="font-semibold text-brand-text-primary">
+                    {professional.contact_person_name}
+                  </span>
+                </p>
+              )}
             </div>
           </div>
 

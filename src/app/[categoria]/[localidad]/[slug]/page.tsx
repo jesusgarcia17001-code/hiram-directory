@@ -91,7 +91,21 @@ export default async function ProfessionalProfilePage({
 
   // Esquema estructurado JSON-LD LocalBusiness para Google
   // REGLA CLAUDE.md: Sin reseñas ni valoraciones inventadas
-  const jsonLd = {
+  const sameAs: string[] = [];
+  if (professional.instagram_handle) {
+    sameAs.push(`https://instagram.com/${professional.instagram_handle}`);
+  }
+  if (professional.tiktok_handle) {
+    sameAs.push(`https://tiktok.com/@${professional.tiktok_handle}`);
+  }
+  if (professional.facebook_url) {
+    sameAs.push(professional.facebook_url);
+  }
+  if (professional.website_url) {
+    sameAs.push(professional.website_url);
+  }
+
+  const jsonLd: Record<string, unknown> = {
     "@context": "https://schema.org",
     "@type": "LocalBusiness",
     name: professional.business_name,
@@ -106,6 +120,17 @@ export default async function ProfessionalProfilePage({
       addressCountry: "VE",
     },
   };
+
+  if (sameAs.length > 0) {
+    jsonLd.sameAs = sameAs;
+  }
+
+  if (professional.contact_person_name) {
+    jsonLd.founder = {
+      "@type": "Person",
+      name: professional.contact_person_name,
+    };
+  }
 
   const listUrl = `/${category.listing_slug}/${locality.slug}`;
 
@@ -190,6 +215,20 @@ export default async function ProfessionalProfilePage({
                   <h1 className="text-2xl sm:text-3xl font-black text-brand-primary tracking-tight">
                     {professional.business_name}
                   </h1>
+
+                  {professional.contact_person_name && (
+                    <p className="text-sm font-semibold text-brand-text-muted flex items-center gap-1.5 pt-0.5">
+                      <span>👤</span>
+                      <span>
+                        {professional.provider_type === "company"
+                          ? "Persona de contacto:"
+                          : "Atendido por:"}{" "}
+                        <strong className="text-brand-text-primary">
+                          {professional.contact_person_name}
+                        </strong>
+                      </span>
+                    </p>
+                  )}
                 </div>
               </div>
 
@@ -224,6 +263,67 @@ export default async function ProfessionalProfilePage({
                   </span>
                 </div>
               </div>
+
+              {/* Canales Oficiales y Redes Sociales */}
+              {(professional.instagram_handle ||
+                professional.tiktok_handle ||
+                professional.facebook_url ||
+                professional.website_url) && (
+                <div className="pt-4 border-t border-brand-border">
+                  <span className="text-[11px] font-bold text-brand-text-muted uppercase tracking-wider block mb-2.5">
+                    Canales Oficiales y Redes
+                  </span>
+                  <div className="flex flex-wrap items-center gap-2">
+                    {professional.instagram_handle && (
+                      <a
+                        href={`https://instagram.com/${professional.instagram_handle}`}
+                        target="_blank"
+                        rel="noopener noreferrer nofollow"
+                        className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold bg-gradient-to-r from-pink-50 to-purple-50 text-pink-700 border border-pink-200 hover:from-pink-100 hover:to-purple-100 transition-colors shadow-2xs"
+                      >
+                        <span className="font-bold">📸 Instagram</span>
+                        <span className="text-pink-600 font-mono text-[11px]">
+                          @{professional.instagram_handle}
+                        </span>
+                      </a>
+                    )}
+                    {professional.tiktok_handle && (
+                      <a
+                        href={`https://tiktok.com/@${professional.tiktok_handle}`}
+                        target="_blank"
+                        rel="noopener noreferrer nofollow"
+                        className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold bg-slate-900 text-white hover:bg-slate-800 transition-colors shadow-2xs"
+                      >
+                        <span className="font-bold">🎵 TikTok</span>
+                        <span className="text-slate-300 font-mono text-[11px]">
+                          @{professional.tiktok_handle}
+                        </span>
+                      </a>
+                    )}
+                    {professional.facebook_url && (
+                      <a
+                        href={professional.facebook_url}
+                        target="_blank"
+                        rel="noopener noreferrer nofollow"
+                        className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold bg-blue-50 text-blue-700 border border-blue-200 hover:bg-blue-100 transition-colors shadow-2xs"
+                      >
+                        <span className="font-bold">📘 Facebook</span>
+                      </a>
+                    )}
+                    {professional.website_url && (
+                      <a
+                        href={professional.website_url}
+                        target="_blank"
+                        rel="noopener noreferrer nofollow"
+                        className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold bg-brand-surface-soft text-brand-primary border border-brand-primary/20 hover:bg-brand-primary/10 transition-colors shadow-2xs"
+                      >
+                        <span className="font-bold">🌐 Sitio Web</span>
+                        <span>↗</span>
+                      </a>
+                    )}
+                  </div>
+                </div>
+              )}
             </div>
 
             {/* Servicios Ofrecidos (Chips en Surface-Soft con texto Primary) */}

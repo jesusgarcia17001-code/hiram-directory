@@ -41,7 +41,7 @@ export default async function AdminEditProfessionalPage({ params }: Props) {
   const { data: professional, error: profErr } = await adminClient
     .from("professionals")
     .select(
-      "id, owner_id, business_name, slug, provider_type, id_type, id_number, status, description, experience_years, locality_id, created_at, updated_at"
+      "id, owner_id, business_name, slug, provider_type, id_type, id_number, status, description, experience_years, locality_id, created_at, updated_at, contact_person_name, instagram_handle, tiktok_handle, facebook_url, website_url"
     )
     .eq("id", id)
     .single();
@@ -192,6 +192,11 @@ export default async function AdminEditProfessionalPage({ params }: Props) {
             experience_years: professional.experience_years,
             locality_id: professional.locality_id,
             description: professional.description,
+            contact_person_name: professional.contact_person_name,
+            instagram_handle: professional.instagram_handle,
+            tiktok_handle: professional.tiktok_handle,
+            facebook_url: professional.facebook_url,
+            website_url: professional.website_url,
           }}
           contact={{
             whatsapp_phone: contact?.whatsapp_phone || null,

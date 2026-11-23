@@ -8,6 +8,9 @@ import {
   VENEZUELA_PHONE_REGEX,
   normalizePhoneToE164,
   slugify,
+  normalizeSocialHandle,
+  SOCIAL_HANDLE_REGEX,
+  isValidHttpsUrl,
 } from "@/lib/validations/profile";
 import type { Database, ProfessionalStatus } from "@/types/database";
 
@@ -60,6 +63,56 @@ const adminEditSchema = z.object({
   status: z
     .enum(["pending", "approved", "rejected", "suspended"] as const)
     .optional(),
+  contact_person_name: z
+    .string()
+    .trim()
+    .max(80, "El nombre de contacto no puede superar los 80 caracteres.")
+    .refine(
+      (val) => val === "" || val.length >= 2,
+      "El nombre de la persona debe tener al menos 2 caracteres."
+    )
+    .optional()
+    .or(z.literal("")),
+  instagram_handle: z
+    .string()
+    .trim()
+    .transform((val) => normalizeSocialHandle(val))
+    .refine(
+      (val) => val === "" || SOCIAL_HANDLE_REGEX.test(val),
+      "El usuario de Instagram solo puede tener letras, números, punto o guion bajo (máx. 30 caracteres)."
+    )
+    .optional()
+    .or(z.literal("")),
+  tiktok_handle: z
+    .string()
+    .trim()
+    .transform((val) => normalizeSocialHandle(val))
+    .refine(
+      (val) => val === "" || SOCIAL_HANDLE_REGEX.test(val),
+      "El usuario de TikTok solo puede tener letras, números, punto o guion bajo (máx. 30 caracteres)."
+    )
+    .optional()
+    .or(z.literal("")),
+  facebook_url: z
+    .string()
+    .trim()
+    .max(200, "La dirección de Facebook no puede superar los 200 caracteres.")
+    .refine(
+      (val) => val === "" || isValidHttpsUrl(val),
+      "La dirección de Facebook debe comenzar con https:// y ser una URL válida."
+    )
+    .optional()
+    .or(z.literal("")),
+  website_url: z
+    .string()
+    .trim()
+    .max(200, "La dirección web no puede superar los 200 caracteres.")
+    .refine(
+      (val) => val === "" || isValidHttpsUrl(val),
+      "El sitio web debe comenzar con https:// y ser una URL segura."
+    )
+    .optional()
+    .or(z.literal("")),
 });
 
 export async function adminUpdateProfessionalAction(
@@ -102,6 +155,11 @@ export async function adminUpdateProfessionalAction(
     phone: formData.get("phone") || "",
     description: formData.get("description") || "",
     status: formData.get("status") || undefined,
+    contact_person_name: formData.get("contact_person_name") || "",
+    instagram_handle: formData.get("instagram_handle") || "",
+    tiktok_handle: formData.get("tiktok_handle") || "",
+    facebook_url: formData.get("facebook_url") || "",
+    website_url: formData.get("website_url") || "",
   };
 
   const parsed = adminEditSchema.safeParse(rawData);
@@ -156,6 +214,11 @@ export async function adminUpdateProfessionalAction(
     locality_id: data.locality_id,
     experience_years: data.experience_years,
     description: data.description || null,
+    contact_person_name: data.contact_person_name || null,
+    instagram_handle: data.instagram_handle || null,
+    tiktok_handle: data.tiktok_handle || null,
+    facebook_url: data.facebook_url || null,
+    website_url: data.website_url || null,
     updated_at: new Date().toISOString(),
   };
 
