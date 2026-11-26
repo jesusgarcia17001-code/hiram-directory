@@ -82,7 +82,12 @@ export default async function ProfessionalProfilePage({
   const { professional, locality, category } = result;
 
   // Registrar visita única del perfil en el servidor (Fase 4 - Cuota y Métricas)
-  await recordProfileVisit(professional.id);
+  // Protección de resiliencia: la analítica nunca debe impedir ver el perfil público
+  try {
+    await recordProfileVisit(professional.id);
+  } catch (err) {
+    console.error("Error al registrar visita del perfil:", err);
+  }
 
   const logoUrl = getPublicMediaUrl(professional.logo_path);
 
@@ -338,7 +343,7 @@ export default async function ProfessionalProfilePage({
                   <span>🛠️</span> Servicios Especializados
                 </h2>
                 <div className="flex flex-wrap gap-2">
-                  {professional.services.map((svc: any) => (
+                  {professional.services.map((svc) => (
                     <span
                       key={svc.id}
                       className="px-3 py-1.5 rounded-xl text-xs font-bold bg-brand-surface-soft text-brand-primary border border-brand-primary/20 shadow-2xs"
@@ -357,7 +362,7 @@ export default async function ProfessionalProfilePage({
                   <span>📸</span> Galería de Trabajos y Proyectos Realizados
                 </h2>
                 <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-                  {professional.photos.map((photo: any) => {
+                  {professional.photos.map((photo) => {
                     const pUrl = getPublicMediaUrl(photo.image_path);
                     return (
                       <figure

@@ -100,34 +100,43 @@ export interface RevealContactResult {
 /**
  * Registra una visita única en el perfil del profesional.
  * Ejecutada en el servidor.
+ * RESILIENCIA: Un fallo en analítica nunca debe tumbar la página de un profesional.
  */
 export async function recordProfileVisit(professionalId: string): Promise<boolean> {
-  // Ignorar bots
-  if (await isBotRequest()) {
+  try {
+    // Ignorar bots
+    if (await isBotRequest()) {
+      return false;
+    }
+
+    const visitorHash = await getOrCreateVisitorHash();
+    const dedupeKey = `visit-${professionalId}-${visitorHash}`;
+
+    const supabase = await createClient();
+    const { data: { user } } = await supabase.auth.getUser();
+    const actorId = user?.id || null;
+
+    const adminClient = createAdminClient();
+    const { data: recorded, error } = await adminClient.rpc("record_profile_visit", {
+      p_professional_id: professionalId,
+      p_visitor_hash: visitorHash,
+      p_dedupe_key: dedupeKey,
+      p_actor_id: actorId,
+    });
+
+    if (error) {
+      console.error("Error al registrar visita:", error.message);
+      return false;
+    }
+
+    return Boolean(recorded);
+  } catch (err: unknown) {
+    console.error(
+      "Error al registrar visita de perfil:",
+      err instanceof Error ? err.message : err
+    );
     return false;
   }
-
-  const visitorHash = await getOrCreateVisitorHash();
-  const dedupeKey = `visit-${professionalId}-${visitorHash}`;
-
-  const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
-  const actorId = user?.id || null;
-
-  const adminClient = createAdminClient();
-  const { data: recorded, error } = await adminClient.rpc("record_profile_visit", {
-    p_professional_id: professionalId,
-    p_visitor_hash: visitorHash,
-    p_dedupe_key: dedupeKey,
-    p_actor_id: actorId,
-  });
-
-  if (error) {
-    console.error("Error al registrar visita:", error.message);
-    return false;
-  }
-
-  return Boolean(recorded);
 }
 
 /**
@@ -139,8 +148,9 @@ export async function revealProfessionalContact(
   professionalId: string,
   channel: "whatsapp" | "call"
 ): Promise<RevealContactResult> {
-  // Ignorar bots
-  if (await isBotRequest()) {
+  try {
+    // Ignorar bots
+    if (await isBotRequest()) {
     return {
       authorized: false,
       message: "Solicitud no permitida para rastreadores automatizados.",
@@ -215,6 +225,19 @@ export async function revealProfessionalContact(
     actionUrl,
     quota: res.quota,
   };
+  } catch (err: unknown) {
+    console.error(
+      "Error al solicitar datos de contacto:",
+      err instanceof Error ? err.message : err
+    );
+    return {
+      authorized: false,
+      message:
+        err instanceof Error
+          ? err.message
+          : "Error inesperado al solicitar los datos de contacto.",
+    };
+  }
 }
 
 /**

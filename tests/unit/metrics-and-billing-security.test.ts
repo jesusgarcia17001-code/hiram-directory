@@ -77,6 +77,24 @@ describe("Seguridad de Métricas, Facturación y HMAC", () => {
       expect(typeof hash).toBe("string");
       expect(hash).toHaveLength(64); // SHA-256 en hex tiene 64 caracteres
     });
+
+    it("recordProfileVisit debe capturar el error y devolver false de forma resiliente si falta METRICS_HMAC_SECRET", async () => {
+      delete process.env.METRICS_HMAC_SECRET;
+
+      const { recordProfileVisit } = await import("@/services/metrics");
+      // Resiliencia: nunca debe tumbar la página con una excepción no controlada
+      const result = await recordProfileVisit("00000000-0000-0000-0000-000000000001");
+      expect(result).toBe(false);
+    });
+
+    it("revealProfessionalContact debe responder authorized: false sin lanzar excepción si falta METRICS_HMAC_SECRET", async () => {
+      delete process.env.METRICS_HMAC_SECRET;
+
+      const { revealProfessionalContact } = await import("@/services/metrics");
+      const result = await revealProfessionalContact("00000000-0000-0000-0000-000000000001", "whatsapp");
+      expect(result.authorized).toBe(false);
+      expect(result.message).toContain("METRICS_HMAC_SECRET");
+    });
   });
 
   describe("2. get_professional_metrics y control de acceso por p_actor_id", () => {
