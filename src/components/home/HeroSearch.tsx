@@ -349,7 +349,7 @@ export function HeroSearch({ categories, services = [], localities }: HeroSearch
                 </div>
 
                 <span className="text-xs font-extrabold text-brand-accent-dark">
-                  Ver lista →
+                  Ver lista
                 </span>
               </li>
             );

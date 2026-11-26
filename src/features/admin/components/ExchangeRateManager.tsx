@@ -51,7 +51,7 @@ export function ExchangeRateManager({ activeRate, pendingRates }: Props) {
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
           <div>
             <span className="text-xs uppercase font-bold text-slate-500 tracking-wider">
-              Tasa Activa Vigente (USD → VES)
+              Tasa Activa Vigente (USD a VES)
             </span>
             <div className="flex items-baseline gap-2 mt-1">
               <span className="text-3xl font-black text-white font-mono">

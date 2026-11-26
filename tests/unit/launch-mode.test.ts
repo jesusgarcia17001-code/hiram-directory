@@ -99,10 +99,10 @@ describe("Fase: Modo Lanzamiento Gratuito + Interruptor de Cobro (CLAUDE.md)", (
       );
 
       expect(migrationSql).toContain(
-        "revoke execute on function public.get_professional_metrics(uuid) from public, anon, authenticated;"
+        "revoke execute on function public.get_professional_metrics(uuid, uuid) from public, anon, authenticated;"
       );
       expect(migrationSql).toContain(
-        "grant execute on function public.get_professional_metrics(uuid) to service_role;"
+        "grant execute on function public.get_professional_metrics(uuid, uuid) to service_role;"
       );
     });
   });

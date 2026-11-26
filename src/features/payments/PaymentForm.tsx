@@ -370,7 +370,7 @@ export function PaymentForm({
                 Enviando comprobante...
               </span>
             ) : (
-              `Reportar Pago por Bs ${amountBs.toLocaleString("es-VE", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} →`
+              `Reportar Pago por Bs ${amountBs.toLocaleString("es-VE", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
             )}
           </button>
         )}

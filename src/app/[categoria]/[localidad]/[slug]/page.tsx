@@ -163,7 +163,7 @@ export default async function ProfessionalProfilePage({
             href={listUrl}
             className="inline-flex items-center gap-1.5 text-xs font-bold text-brand-accent-dark hover:underline transition-colors"
           >
-            ← Ver todos los {category.plural_label.toLowerCase()} en {locality.name}
+            Ver todos los {category.plural_label.toLowerCase()} en {locality.name}
           </Link>
         </div>
 
@@ -318,7 +318,6 @@ export default async function ProfessionalProfilePage({
                         className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold bg-brand-surface-soft text-brand-primary border border-brand-primary/20 hover:bg-brand-primary/10 transition-colors shadow-2xs"
                       >
                         <span className="font-bold">🌐 Sitio Web</span>
-                        <span>↗</span>
                       </a>
                     )}
                   </div>

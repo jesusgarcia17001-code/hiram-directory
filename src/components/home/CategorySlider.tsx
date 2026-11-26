@@ -57,18 +57,22 @@ export function CategorySlider({ categories }: CategorySliderProps) {
           <button
             type="button"
             onClick={() => scroll("left")}
-            className="w-8 h-8 rounded-full bg-brand-surface-soft hover:bg-slate-200 text-brand-primary flex items-center justify-center font-bold text-sm transition-colors cursor-pointer"
+            className="w-8 h-8 rounded-full bg-brand-surface-soft hover:bg-slate-200 text-brand-primary flex items-center justify-center transition-colors cursor-pointer"
             aria-label="Desplazar categorías a la izquierda"
           >
-            ←
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M15 19l-7-7 7-7" />
+            </svg>
           </button>
           <button
             type="button"
             onClick={() => scroll("right")}
-            className="w-8 h-8 rounded-full bg-brand-surface-soft hover:bg-slate-200 text-brand-primary flex items-center justify-center font-bold text-sm transition-colors cursor-pointer"
+            className="w-8 h-8 rounded-full bg-brand-surface-soft hover:bg-slate-200 text-brand-primary flex items-center justify-center transition-colors cursor-pointer"
             aria-label="Desplazar categorías a la derecha"
           >
-            →
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M9 5l7 7-7 7" />
+            </svg>
           </button>
         </div>
       </div>
@@ -94,9 +98,6 @@ export function CategorySlider({ categories }: CategorySliderProps) {
               </span>
               <span className="text-xs sm:text-sm font-bold text-brand-primary group-hover:text-brand-accent-dark whitespace-nowrap transition-colors">
                 {cat.plural_label}
-              </span>
-              <span className="text-[10px] text-brand-accent-dark font-extrabold ml-1 group-hover:translate-x-0.5 transition-transform">
-                →
               </span>
             </Link>
           );

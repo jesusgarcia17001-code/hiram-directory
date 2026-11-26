@@ -176,7 +176,7 @@ export function ProfileGalleryManager({
             href="/panel/suscripcion"
             className="px-3.5 py-1.5 text-xs font-bold text-white bg-amber-600 hover:bg-amber-700 rounded-xl transition-colors shadow-xs text-center shrink-0"
           >
-            Ver Planes y Mejorar →
+            Ver Planes y Mejorar
           </Link>
         </div>
       ) : (
@@ -308,18 +308,22 @@ export function ProfileGalleryManager({
                         onClick={() => handleMovePhoto(index, "up")}
                         disabled={index === 0 || isPending}
                         title="Mover foto a la izquierda/arriba"
-                        className="w-6 h-6 rounded bg-slate-100 hover:bg-slate-200 text-slate-600 disabled:opacity-30 disabled:cursor-not-allowed flex items-center justify-center font-bold text-xs"
+                        className="w-6 h-6 rounded bg-slate-100 hover:bg-slate-200 text-slate-600 disabled:opacity-30 disabled:cursor-not-allowed flex items-center justify-center transition-colors"
                       >
-                        ←
+                        <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                        </svg>
                       </button>
                       <button
                         type="button"
                         onClick={() => handleMovePhoto(index, "down")}
                         disabled={index === photos.length - 1 || isPending}
                         title="Mover foto a la derecha/abajo"
-                        className="w-6 h-6 rounded bg-slate-100 hover:bg-slate-200 text-slate-600 disabled:opacity-30 disabled:cursor-not-allowed flex items-center justify-center font-bold text-xs"
+                        className="w-6 h-6 rounded bg-slate-100 hover:bg-slate-200 text-slate-600 disabled:opacity-30 disabled:cursor-not-allowed flex items-center justify-center transition-colors"
                       >
-                        →
+                        <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                        </svg>
                       </button>
                     </div>
 

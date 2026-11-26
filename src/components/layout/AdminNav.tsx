@@ -75,7 +75,7 @@ export function AdminNav({ user }: AdminNavProps) {
               href="/panel"
               className="hidden md:inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-slate-300 hover:text-white border border-slate-700 rounded-lg hover:bg-slate-800 transition-colors"
             >
-              ← Ir a Vista Panel
+              Ir a Vista Panel
             </Link>
 
             <div className="text-right hidden sm:block">
@@ -120,7 +120,7 @@ export function AdminNav({ user }: AdminNavProps) {
             href="/panel"
             className="ml-auto text-xs text-slate-400 hover:text-white"
           >
-            Panel →
+            Panel
           </Link>
         </div>
       </div>

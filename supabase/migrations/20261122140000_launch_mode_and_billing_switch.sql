@@ -435,11 +435,100 @@ grant execute on function public.reveal_professional_contact(uuid, text, text, t
 
 
 -- ---------------------------------------------------------------------
--- 9. PERMISOS DE: get_professional_metrics
--- Revocado a anon y authenticated; SOLO service_role
+-- 9. REFINAMIENTO DE: get_professional_metrics
+-- Soporte para p_actor_id con service_role (el id de sesión es nulo en service_role)
+-- Revocado a anon y authenticated; SOLO ejecutable por service_role
 -- ---------------------------------------------------------------------
-revoke execute on function public.get_professional_metrics(uuid) from public, anon, authenticated;
-grant execute on function public.get_professional_metrics(uuid) to service_role;
+drop function if exists public.get_professional_metrics(uuid);
+drop function if exists public.get_professional_metrics(uuid, uuid);
+
+create or replace function public.get_professional_metrics(
+  p_professional_id uuid,
+  p_actor_id uuid default null
+)
+returns jsonb
+language plpgsql
+stable
+security definer
+set search_path = ''
+as $$
+declare
+  v_is_owner_or_admin boolean := false;
+  v_quota record;
+  v_sub record;
+  v_stats record;
+begin
+  -- Validar que p_actor_id (o auth.uid()) sea el dueño del perfil o un administrador
+  if p_actor_id is not null then
+    if exists (
+      select 1 from public.professionals
+      where id = p_professional_id and owner_id = p_actor_id
+    ) or exists (
+      select 1 from public.user_profiles
+      where id = p_actor_id and role = 'admin'
+    ) then
+      v_is_owner_or_admin := true;
+    end if;
+  elsif (select auth.uid()) is not null then
+    if private.owns_professional(p_professional_id) or private.is_admin() then
+      v_is_owner_or_admin := true;
+    end if;
+  end if;
+
+  if not v_is_owner_or_admin then
+    raise exception 'No autorizado: no tienes permisos para consultar las métricas de este perfil'
+      using errcode = '42501';
+  end if;
+
+  select * into v_quota from private.free_quota(p_professional_id);
+
+  select
+    count(*) filter (where event_type = 'impression')::int as total_impressions,
+    count(*) filter (where event_type = 'visit')::int as total_visits,
+    count(*) filter (where event_type = 'whatsapp_click')::int as total_whatsapp,
+    count(*) filter (where event_type = 'call_click')::int as total_calls
+  into v_stats
+  from public.profile_events
+  where professional_id = p_professional_id;
+
+  select status, starts_at, ends_at into v_sub
+  from public.subscriptions
+  where professional_id = p_professional_id
+    and status = 'active'
+    and starts_at <= now()
+    and ends_at > now()
+  order by ends_at desc
+  limit 1;
+
+  return jsonb_build_object(
+    'quota', jsonb_build_object(
+      'visits', v_quota.visits,
+      'contacts', v_quota.contacts,
+      'visit_limit', v_quota.visit_limit,
+      'contact_limit', v_quota.contact_limit,
+      'is_contacts_enabled', private.contacts_enabled(p_professional_id)
+    ),
+    'stats', jsonb_build_object(
+      'total_impressions', coalesce(v_stats.total_impressions, 0),
+      'total_visits', coalesce(v_stats.total_visits, 0),
+      'total_whatsapp', coalesce(v_stats.total_whatsapp, 0),
+      'total_calls', coalesce(v_stats.total_calls, 0)
+    ),
+    'subscription', case when v_sub.status is not null then
+      jsonb_build_object(
+        'is_active', true,
+        'starts_at', v_sub.starts_at,
+        'ends_at', v_sub.ends_at
+      )
+    else
+      jsonb_build_object('is_active', false)
+    end
+  );
+end;
+$$;
+
+revoke execute on function public.get_professional_metrics(uuid, uuid) from public, anon, authenticated;
+grant execute on function public.get_professional_metrics(uuid, uuid) to service_role;
 
 
 -- ---------------------------------------------------------------------
@@ -587,3 +676,26 @@ $$;
 
 revoke execute on function public.submit_manual_payment(uuid, uuid, text, text, text, text, integer) from public, anon;
 grant execute on function public.submit_manual_payment(uuid, uuid, text, text, text, text, integer) to authenticated;
+
+
+-- ---------------------------------------------------------------------
+-- 11. ENDURECIMIENTO DE POLÍTICA RLS: payment_settings
+-- Solo lectura si billing_enabled = true Y el usuario posee un perfil profesional,
+-- o si el usuario es administrador. Los administradores siempre leen.
+-- ---------------------------------------------------------------------
+drop policy if exists "Authenticated read payment settings" on public.payment_settings;
+drop policy if exists "Professionals read payment settings when billing enabled" on public.payment_settings;
+
+create policy "Professionals read payment settings when billing enabled" on public.payment_settings
+  for select to authenticated
+  using (
+    private.is_admin()
+    or (
+      is_active = true
+      and private.is_billing_enabled()
+      and exists (
+        select 1 from public.professionals
+        where owner_id = (select auth.uid())
+      )
+    )
+  );

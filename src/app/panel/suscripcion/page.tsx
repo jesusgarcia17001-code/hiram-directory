@@ -44,7 +44,7 @@ export default async function PanelSuscripcionPage() {
             href="/panel/perfil"
             className="inline-flex items-center justify-center px-5 py-2.5 rounded-xl text-sm font-semibold bg-brand-primary text-white shadow-sm hover:bg-brand-primary-hover transition-colors"
           >
-            Completar mi perfil ahora →
+            Completar mi perfil ahora
           </Link>
         </div>
       </div>
@@ -145,7 +145,7 @@ export default async function PanelSuscripcionPage() {
               href="/panel"
               className="text-xs font-semibold text-brand-primary hover:underline"
             >
-              ← Volver al resumen de métricas
+              Volver al resumen de métricas
             </Link>
           </div>
         </div>

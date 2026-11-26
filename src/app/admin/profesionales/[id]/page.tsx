@@ -134,7 +134,6 @@ export default async function AdminEditProfessionalPage({ params }: Props) {
               className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-amber-400 bg-amber-950/40 border border-amber-800/80 rounded-xl hover:bg-amber-900/50 hover:text-amber-300 transition-colors w-fit"
             >
               <span>Ver ficha pública</span>
-              <span>↗</span>
             </Link>
           )}
         </div>

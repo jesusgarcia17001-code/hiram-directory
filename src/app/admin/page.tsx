@@ -63,7 +63,7 @@ export default async function AdminDashboardPage() {
               href="/admin/profesionales"
               className="inline-block mt-3 text-xs font-bold text-amber-400 hover:text-amber-300 underline"
             >
-              Revisar pendientes →
+              Revisar pendientes
             </Link>
           )}
         </div>
@@ -135,7 +135,7 @@ export default async function AdminDashboardPage() {
                 href="/admin/profesionales"
                 className="inline-flex items-center justify-center px-4 py-2 rounded-xl text-xs font-semibold bg-red-600 text-white hover:bg-red-500 transition-colors"
               >
-                Ir al listado de profesionales →
+                Ir al listado de profesionales
               </Link>
             </div>
           </div>

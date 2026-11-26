@@ -26,7 +26,7 @@ export default function PrivacidadPage() {
               href="/"
               className="text-xs font-semibold text-brand-primary hover:underline inline-flex items-center gap-1"
             >
-              ← Volver al inicio
+              Volver al inicio
             </Link>
             <h1 className="text-2xl sm:text-3xl font-black text-brand-text-primary tracking-tight">
               Política de Privacidad — Ofir Oficios

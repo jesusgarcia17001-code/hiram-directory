@@ -67,16 +67,25 @@ describe("Fase: Pago Móvil y Tasa BCV Automática", () => {
       expect(content).toContain("create policy \"Admins manage payment settings\"");
     });
 
-    it("submit_manual_payment debe consultar la tasa activa en BD y calcular amount_bs en el servidor", () => {
-      const content = fs.readFileSync(migrationFile, "utf-8");
-      expect(content).toContain("create or replace function public.submit_manual_payment");
-      expect(content).toContain("where currency_pair = 'USD_VES' and is_active = true");
-      expect(content).toContain("No hay una tasa de cambio oficial activa en el sistema");
-      expect(content).toContain("round((v_plan.price * v_active_rate.rate), 2)");
-      expect(content).toContain("amount_usd,");
-      expect(content).toContain("rate_used,");
-      expect(content).toContain("amount_bs,");
-      expect(content).toContain("rate_date");
+    it("submit_manual_payment no debe definirse en 20261122130000 (para evitar conflicto de sobrecargas) y su versión definitiva debe calcular amount_bs en 20261122140000", () => {
+      const content13 = fs.readFileSync(migrationFile, "utf-8");
+      expect(content13).not.toContain("create or replace function public.submit_manual_payment");
+
+      const migration14File = path.join(
+        rootDir,
+        "supabase",
+        "migrations",
+        "20261122140000_launch_mode_and_billing_switch.sql"
+      );
+      const content14 = fs.readFileSync(migration14File, "utf-8");
+      expect(content14).toContain("create or replace function public.submit_manual_payment");
+      expect(content14).toContain("where currency_pair = 'USD_VES' and is_active = true");
+      expect(content14).toContain("No hay una tasa de cambio oficial activa en el sistema");
+      expect(content14).toContain("round((v_plan.price * v_active_rate.rate), 2)");
+      expect(content14).toContain("amount_usd,");
+      expect(content14).toContain("rate_used,");
+      expect(content14).toContain("amount_bs,");
+      expect(content14).toContain("rate_date");
     });
   });
 

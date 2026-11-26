@@ -73,7 +73,7 @@ export function ReceiptViewerButton({
                   rel="noopener noreferrer"
                   className="text-xs font-semibold text-brand-primary hover:underline px-2 py-1"
                 >
-                  Abrir en pestaña nueva ↗
+                  Abrir en pestaña nueva
                 </a>
                 <button
                   type="button"

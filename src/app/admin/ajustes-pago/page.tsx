@@ -57,7 +57,7 @@ export default async function AdminAjustesPagoPage() {
       <section className="space-y-3 pt-2">
         <div className="border-b border-brand-border pb-2">
           <h2 className="text-lg font-bold text-brand-text-primary">
-            2. Control de Tasa Oficial (BCV / USD → VES)
+            2. Control de Tasa Oficial (BCV / USD a VES)
           </h2>
           <p className="text-xs text-brand-text-muted">
             La tasa se sincroniza automáticamente cada día vía CotizaVE. Puedes fijar una tasa manual en cualquier momento.

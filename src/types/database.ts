@@ -781,6 +781,7 @@ export interface Database {
       get_professional_metrics: {
         Args: {
           p_professional_id: string;
+          p_actor_id?: string | null;
         };
         Returns: Json;
       };

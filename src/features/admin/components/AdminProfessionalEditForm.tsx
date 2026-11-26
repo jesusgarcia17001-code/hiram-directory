@@ -78,7 +78,7 @@ export function AdminProfessionalEditForm({
                 rel="noreferrer"
                 className="text-xs underline font-bold hover:text-white"
               >
-                Ver ficha en vivo ↗
+                Ver ficha en vivo
               </Link>
             )}
           </div>
@@ -291,7 +291,7 @@ export function AdminProfessionalEditForm({
             href="/admin/profesionales"
             className="px-4 py-2 text-sm text-slate-400 hover:text-white transition-colors"
           >
-            ← Volver al listado
+            Volver al listado
           </Link>
           {publicPath && (
             <Link
@@ -300,7 +300,7 @@ export function AdminProfessionalEditForm({
               rel="noreferrer"
               className="text-xs text-amber-400 hover:text-amber-300 underline font-medium"
             >
-              Ver perfil público ↗
+              Ver perfil público
             </Link>
           )}
         </div>

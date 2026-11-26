@@ -4,15 +4,24 @@ import { createHmac, randomUUID } from "crypto";
 import { cookies, headers } from "next/headers";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
-import { brand } from "@/config/brand";
 
 const VISITOR_COOKIE_NAME = "__hiram_vid";
 
-// Secreto para HMAC. Si no se define una variable específica, usa anon key como fallback seguro.
-const HMAC_SECRET =
-  process.env.METRICS_HMAC_SECRET ||
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ||
-  "hiram-default-metrics-secret-key";
+/**
+ * Obtiene la clave secreta para firmar los identificadores de métricas.
+ * REGLA DE SEGURIDAD (CLAUDE.md):
+ * La variable METRICS_HMAC_SECRET es estrictamente obligatoria.
+ * No se permite fallback a claves anónimas ni valores predeterminados fijos.
+ */
+function getMetricsHmacSecret(): string {
+  const secret = process.env.METRICS_HMAC_SECRET?.trim();
+  if (!secret) {
+    throw new Error(
+      "Falta la variable de entorno obligatoria METRICS_HMAC_SECRET en el servidor."
+    );
+  }
+  return secret;
+}
 
 /**
  * Lista de agentes de usuario correspondientes a rastreadores y bots conocidos.
@@ -69,8 +78,8 @@ export async function getOrCreateVisitorHash(): Promise<string> {
     }
   }
 
-  // Generar HMAC SHA-256 seguro
-  return createHmac("sha256", HMAC_SECRET).update(visitorId).digest("hex");
+  // Generar HMAC SHA-256 seguro con la clave obligatoria del servidor
+  return createHmac("sha256", getMetricsHmacSecret()).update(visitorId).digest("hex");
 }
 
 export interface RevealContactResult {
@@ -213,10 +222,20 @@ export async function revealProfessionalContact(
  * Ejecutada mediante service_role en el servidor tras validar autenticación.
  */
 export async function getProfessionalMetrics(professionalId: string) {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) {
+    return null;
+  }
+
   const adminClient = createAdminClient();
 
   const { data, error } = await adminClient.rpc("get_professional_metrics", {
     p_professional_id: professionalId,
+    p_actor_id: user.id,
   });
 
   if (error) {

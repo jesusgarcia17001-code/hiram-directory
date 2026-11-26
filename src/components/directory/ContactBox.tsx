@@ -102,8 +102,8 @@ export function ContactBox({
                   className="inline-flex items-center justify-center w-full py-2 px-3 rounded-lg text-xs font-bold bg-emerald-600 text-white hover:bg-emerald-700 transition-colors shadow-xs"
                 >
                   {contactResult.channel === "whatsapp"
-                    ? "Abrir conversación en WhatsApp →"
-                    : "Llamar ahora →"}
+                    ? "Abrir conversación en WhatsApp"
+                    : "Llamar ahora"}
                 </a>
               )}
             </div>

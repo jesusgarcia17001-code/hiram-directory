@@ -86,10 +86,19 @@ on conflict (id) do nothing;
 -- RLS en payment_settings
 alter table public.payment_settings enable row level security;
 
--- Lectura: disponible para usuarios autenticados que van a pagar (y admins)
+-- Lectura: disponible para usuarios con perfil profesional (y admins)
 create policy "Authenticated read payment settings" on public.payment_settings
   for select to authenticated
-  using (is_active = true or private.is_admin());
+  using (
+    private.is_admin()
+    or (
+      is_active = true
+      and exists (
+        select 1 from public.professionals
+        where owner_id = (select auth.uid())
+      )
+    )
+  );
 
 -- Modificación: exclusivo administradores
 create policy "Admins manage payment settings" on public.payment_settings
@@ -112,153 +121,7 @@ alter table public.payments
 
 
 -- ---------------------------------------------------------------------
--- 4. ACTUALIZACIÓN SEGURA DE: submit_manual_payment
--- Lee la tasa activa dentro de la base de datos (inmune a manipulación del cliente)
--- ---------------------------------------------------------------------
-create or replace function public.submit_manual_payment(
-  p_professional_id uuid,
-  p_plan_id uuid,
-  p_payment_method text,
-  p_reference_number text,
-  p_receipt_storage_path text,
-  p_receipt_mime_type text,
-  p_receipt_size_bytes integer,
-  p_amount numeric default null -- Parámetro opcional: se ignora y se calcula en el servidor
-)
-returns jsonb
-language plpgsql
-security definer
-set search_path = ''
-as $$
-declare
-  v_user_id uuid := (select auth.uid());
-  v_plan record;
-  v_active_rate record;
-  v_sub_id uuid;
-  v_payment_id uuid;
-  v_amount_bs numeric(18,2);
-begin
-  if v_user_id is null then
-    raise exception 'No autenticado' using errcode = '42501';
-  end if;
-
-  -- Validar que el profesional pertenece al usuario actual (o es admin)
-  if not (private.owns_professional(p_professional_id) or private.is_admin()) then
-    raise exception 'No autorizado: no eres dueño de este perfil' using errcode = '42501';
-  end if;
-
-  -- 1. Validar plan activo y obtener precio oficial en USD
-  select id, name, price, duration_days into v_plan
-  from public.plans
-  where id = p_plan_id and is_active = true;
-
-  if not found then
-    raise exception 'Plan no disponible o inactivo' using errcode = 'P0002';
-  end if;
-
-  if v_plan.price <= 0 then
-    raise exception 'El plan seleccionado no requiere pago monetario' using errcode = '22023';
-  end if;
-
-  -- 2. Leer la tasa de cambio activa dentro de la base de datos
-  select id, rate, source_updated_at into v_active_rate
-  from public.exchange_rates
-  where currency_pair = 'USD_VES' and is_active = true
-  limit 1;
-
-  if not found or v_active_rate.rate is null or v_active_rate.rate <= 0 then
-    raise exception 'No hay una tasa de cambio oficial activa en el sistema. Por favor intente más tarde o comuníquese con soporte.' using errcode = 'P0002';
-  end if;
-
-  -- 3. Calcular monto en Bolívares
-  v_amount_bs := round((v_plan.price * v_active_rate.rate), 2);
-
-  -- 4. Validar campos obligatorios del reporte
-  if trim(coalesce(p_payment_method, '')) = '' then
-    raise exception 'El método de pago es requerido' using errcode = '22023';
-  end if;
-
-  if trim(coalesce(p_reference_number, '')) = '' then
-    raise exception 'El número de referencia es requerido' using errcode = '22023';
-  end if;
-
-  if trim(coalesce(p_receipt_storage_path, '')) = '' then
-    raise exception 'La ruta del comprobante es requerida' using errcode = '22023';
-  end if;
-
-  -- 5. Crear suscripción en estado 'pending'
-  insert into public.subscriptions (
-    professional_id,
-    plan_id,
-    status
-  )
-  values (
-    p_professional_id,
-    p_plan_id,
-    'pending'::public.subscription_status
-  )
-  returning id into v_sub_id;
-
-  -- 6. Crear pago con el precio oficial, la tasa y el monto en Bs calculados en BD
-  insert into public.payments (
-    professional_id,
-    subscription_id,
-    amount,
-    currency,
-    payment_method,
-    reference_number,
-    status,
-    amount_usd,
-    rate_used,
-    amount_bs,
-    rate_date
-  )
-  values (
-    p_professional_id,
-    v_sub_id,
-    v_plan.price,
-    'USD',
-    p_payment_method,
-    p_reference_number,
-    'pending'::public.payment_status,
-    v_plan.price,
-    v_active_rate.rate,
-    v_amount_bs,
-    v_active_rate.source_updated_at
-  )
-  returning id into v_payment_id;
-
-  -- 7. Registrar comprobante
-  insert into public.payment_receipts (
-    payment_id,
-    storage_path,
-    mime_type,
-    size_bytes
-  )
-  values (
-    v_payment_id,
-    p_receipt_storage_path,
-    p_receipt_mime_type,
-    p_receipt_size_bytes
-  );
-
-  return jsonb_build_object(
-    'success', true,
-    'payment_id', v_payment_id,
-    'subscription_id', v_sub_id,
-    'amount_usd', v_plan.price,
-    'amount_bs', v_amount_bs,
-    'rate_used', v_active_rate.rate
-  );
-end;
-$$;
-
-revoke execute on function public.submit_manual_payment from public, anon;
-grant execute on function public.submit_manual_payment to authenticated;
-
-
--- ---------------------------------------------------------------------
--- 5. FUNCIONES ADMINISTRATIVAS: Tasa Manual, Reversión y Aprobación
+-- 4. FUNCIONES ADMINISTRATIVAS: Tasa Manual, Reversión y Aprobación
 -- ---------------------------------------------------------------------
 
 -- Función: Fijar tasa manual por el administrador

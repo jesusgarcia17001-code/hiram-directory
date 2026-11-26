@@ -99,7 +99,7 @@ export function ProfileForm({
               href="/panel"
               className="inline-block text-xs font-bold underline hover:opacity-80"
             >
-              ← Volver al resumen del panel
+              Volver al resumen del panel
             </Link>
           </div>
         </Alert>

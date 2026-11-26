@@ -150,7 +150,7 @@ export default async function CategoryListingPage({
                 href="/register"
                 className="inline-flex items-center justify-center px-5 py-2.5 rounded-xl text-xs font-bold bg-brand-accent text-brand-primary-dark shadow-xs hover:bg-brand-accent/90 transition-colors"
               >
-                Registrar mi servicio gratis →
+                Registrar mi servicio gratis
               </Link>
             </div>
           </div>

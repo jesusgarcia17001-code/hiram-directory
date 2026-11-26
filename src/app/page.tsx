@@ -171,7 +171,7 @@ export default async function HomePage() {
                       {categoryIcons[cat.icon || ""] || "🛠️"}
                     </span>
                     <span className="text-xs text-brand-accent-dark font-extrabold group-hover:translate-x-0.5 transition-transform">
-                      Ver lista →
+                      Ver lista
                     </span>
                   </div>
 
