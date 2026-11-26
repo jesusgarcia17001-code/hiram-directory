@@ -13,6 +13,11 @@ import {
   getActiveLocalitiesForCategory,
   getApprovedProfessionalsByCategory,
 } from "@/services/directory";
+import {
+  buildCategoryTitle,
+  generateCategoryIntroText,
+  generateCategoryFaqs,
+} from "@/lib/seo-content";
 
 export async function generateMetadata({
   params,
@@ -28,9 +33,12 @@ export async function generateMetadata({
     };
   }
 
-  const title = `${category.plural_label} en Anzoátegui | ${brand.name}`;
-  const description = `Directorio de ${category.plural_label.toLowerCase()} verificados en Anzoátegui (Puerto La Cruz, Barcelona). Contacta técnicos independientes y empresas de confianza.`;
+  // Título sin sufijo manual: el layout añade automáticamente " | Ofir Servicios"
+  // Garantiza longitud total <= 60 caracteres
+  const title = buildCategoryTitle(category.plural_label);
+  const description = `Directorio de ${category.plural_label.toLowerCase()} en Anzoátegui (Puerto La Cruz, Barcelona, Lechería). Contacta especialistas directamente.`;
   const canonical = `${site.url}/${category.listing_slug}`;
+  const fullTitle = `${title} | ${brand.name}`;
 
   return {
     title,
@@ -39,7 +47,7 @@ export async function generateMetadata({
       canonical,
     },
     openGraph: {
-      title,
+      title: fullTitle,
       description,
       url: canonical,
       siteName: brand.name,
@@ -69,28 +77,41 @@ export default async function CategoryListingPage({
   // Obtener todos los profesionales aprobados en Anzoátegui
   const professionals = await getApprovedProfessionalsByCategory(category.id);
 
-  // Esquema estructurado JSON-LD ItemList para SEO en Google
-  const jsonLd = {
-    "@context": "https://schema.org",
-    "@type": "ItemList",
-    name: `${category.plural_label} en Anzoátegui`,
-    description: `Directorio de ${category.plural_label.toLowerCase()} en el estado Anzoátegui`,
-    numberOfItems: professionals.length,
-    itemListElement: professionals.map((p, index) => ({
-      "@type": "ListItem",
-      position: index + 1,
-      name: p.business_name,
-      url: `${site.url}/${category.listing_slug}/${
-        p.locality_slug || "anzoategui"
-      }/${p.slug}`,
-    })),
-  };
+  // Esquema estructurado JSON-LD según Schema.org:
+  // REGLA SEMRUSH: Si la lista está vacía (como en /tecnicos-linea-blanca), NO emitir ItemList vacío.
+  const jsonLd =
+    professionals.length > 0
+      ? {
+          "@context": "https://schema.org",
+          "@type": "ItemList",
+          name: `${category.plural_label} en Anzoátegui`,
+          description: `Directorio de ${category.plural_label.toLowerCase()} en el estado Anzoátegui`,
+          numberOfItems: professionals.length,
+          itemListElement: professionals.map((p, index) => ({
+            "@type": "ListItem",
+            position: index + 1,
+            name: p.business_name,
+            url: `${site.url}/${category.listing_slug}/${
+              p.locality_slug || "anzoategui"
+            }/${p.slug}`,
+          })),
+        }
+      : {
+          "@context": "https://schema.org",
+          "@type": "CollectionPage",
+          name: `${category.plural_label} en Anzoátegui`,
+          description: `Directorio de ${category.plural_label.toLowerCase()} en el estado Anzoátegui`,
+          url: `${site.url}/${category.listing_slug}`,
+        };
+
+  const introText = generateCategoryIntroText(category.plural_label);
+  const faqs = generateCategoryFaqs(category.singular_label);
 
   return (
     <div className="min-h-screen flex flex-col bg-background">
       <Header />
 
-      <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">
+      <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
@@ -105,25 +126,30 @@ export default async function CategoryListingPage({
         />
 
         {/* Encabezado Principal de la Página de Lista */}
-        <div className="space-y-2 border-b border-brand-border pb-6">
+        <div className="space-y-4 border-b border-brand-border pb-6">
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-semibold bg-brand-surface-soft text-brand-primary border border-brand-primary/20">
             <span>📍 Estado Anzoátegui</span>
             <span>•</span>
-            <span>{professionals.length} {professionals.length === 1 ? "prestador verificado" : "prestadores verificados"}</span>
+            <span>
+              {professionals.length}{" "}
+              {professionals.length === 1
+                ? "prestador verificado"
+                : "prestadores verificados"}
+            </span>
           </div>
 
           <h1 className="text-3xl sm:text-4xl font-black text-brand-primary tracking-tight">
             {category.plural_label} en Anzoátegui
           </h1>
 
-          <p className="text-sm sm:text-base text-brand-text-muted max-w-3xl leading-relaxed">
-            {category.description ||
-              `Encuentra técnicos independientes y empresas verificadas de ${category.singular_label.toLowerCase()} en Puerto La Cruz, Barcelona y todo el estado Anzoátegui.`}
-          </p>
+          {/* Bloque de texto introductorio útil (80-150 palabras) */}
+          <div className="bg-slate-50 border border-slate-200/80 rounded-2xl p-4 sm:p-5 text-xs sm:text-sm text-brand-text-muted leading-relaxed max-w-4xl">
+            <p>{introText}</p>
+          </div>
 
-          {/* Filtro por Ciudades */}
+          {/* Filtro y Enlaces directos por Ciudades */}
           {activeLocalities.length > 0 && (
-            <div className="pt-3">
+            <div className="pt-2">
               <LocalityFilter
                 categoryListingSlug={category.listing_slug}
                 localities={activeLocalities}
@@ -165,6 +191,34 @@ export default async function CategoryListingPage({
             ))}
           </div>
         )}
+
+        {/* Preguntas Frecuentes visibles (SEO + Contenido para el Usuario) */}
+        <section className="bg-slate-50/80 rounded-2xl p-6 sm:p-8 border border-slate-200/80 space-y-6">
+          <div className="space-y-1">
+            <h2 className="text-lg sm:text-xl font-bold text-brand-primary">
+              Preguntas Frecuentes sobre {category.plural_label}
+            </h2>
+            <p className="text-xs text-brand-text-muted">
+              Todo lo que debes saber antes de contratar en Anzoátegui
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            {faqs.map((faq, index) => (
+              <div
+                key={index}
+                className="bg-white p-5 rounded-xl border border-slate-200/60 shadow-2xs space-y-2"
+              >
+                <h3 className="text-xs font-bold text-brand-primary leading-snug">
+                  {faq.question}
+                </h3>
+                <p className="text-[11px] text-brand-text-muted leading-relaxed">
+                  {faq.answer}
+                </p>
+              </div>
+            ))}
+          </div>
+        </section>
       </main>
     </div>
   );

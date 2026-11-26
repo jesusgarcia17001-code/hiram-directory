@@ -7,14 +7,17 @@ import { HeroSearch } from "@/components/home/HeroSearch";
 import { HeroIllustration } from "@/components/home/HeroIllustration";
 import { CategorySlider } from "@/components/home/CategorySlider";
 import { TrustFeatures } from "@/components/home/TrustFeatures";
-import { getActiveCategories } from "@/services/directory";
+import { getActiveCategories, getListingCombinations } from "@/services/directory";
 import { createClient } from "@/lib/supabase/server";
 
 export default async function HomePage() {
   const supabase = await createClient();
 
-  // 1. Obtener categorías activas
-  const categories = await getActiveCategories();
+  // 1. Obtener categorías activas y combinaciones con profesionales aprobados
+  const [categories, combinations] = await Promise.all([
+    getActiveCategories(),
+    getListingCombinations(),
+  ]);
 
   // 2. Obtener localidades activas (filtradas por municipio y estado activos)
   const { data: rawLocs } = await supabase
@@ -186,6 +189,29 @@ export default async function HomePage() {
                 </Link>
               ))}
             </div>
+
+            {/* ENLACES INTERNOS A CIUDADES CON SERVICIOS ACTIVOS (SEO + CRAWLERS) */}
+            {combinations.length > 0 && (
+              <div className="pt-6 border-t border-brand-border space-y-3">
+                <h3 className="text-xs font-bold uppercase tracking-wider text-brand-text-muted">
+                  Ciudades y Zonas con Profesionales Verificados
+                </h3>
+                <div className="flex flex-wrap gap-2">
+                  {combinations.map((comb) => (
+                    <Link
+                      key={`${comb.listing_slug}-${comb.locality_slug}`}
+                      href={`/${comb.listing_slug}/${comb.locality_slug}`}
+                      className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold bg-brand-surface border border-brand-border text-brand-primary hover:border-brand-primary hover:bg-brand-surface-soft transition-all"
+                    >
+                      <span>📍</span>
+                      <span>
+                        {comb.plural_label} en {comb.locality_name}
+                      </span>
+                    </Link>
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
         )}
 

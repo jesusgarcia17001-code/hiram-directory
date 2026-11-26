@@ -11,6 +11,7 @@ import { ContactBox } from "@/components/directory/ContactBox";
 import { getApprovedProfessionalBySlug } from "@/services/directory";
 import { recordProfileVisit } from "@/services/metrics";
 import { getPublicMediaUrl } from "@/lib/storage-public";
+import { buildProfileTitle } from "@/lib/seo-content";
 
 export async function generateMetadata({
   params,
@@ -31,14 +32,19 @@ export async function generateMetadata({
   }
 
   const { professional, locality, category } = result;
-  const title = `${professional.business_name} - ${category.singular_label} en ${locality.name}, Anzoátegui | ${brand.name}`;
+  // Título optimizado <= 60 caracteres y con title.absolute para evitar duplicación del template
+  const title = buildProfileTitle(
+    professional.business_name,
+    category.singular_label,
+    locality.name
+  );
   const description = professional.description
     ? professional.description.slice(0, 155)
     : `Contacta a ${professional.business_name}, especialista en ${category.singular_label.toLowerCase()} en ${locality.name}, estado Anzoátegui.`;
   const canonical = `${site.url}/${category.listing_slug}/${locality.slug}/${professional.slug}`;
 
   return {
-    title,
+    title: { absolute: title },
     description,
     alternates: {
       canonical,

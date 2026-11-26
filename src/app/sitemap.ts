@@ -41,8 +41,12 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   }));
 
   // 3. Páginas de categoría por ciudad con al menos 1 profesional (listing_combinations)
+  // REGLA SEMRUSH / CLAUDE.md: oficio+localidad sin perfiles aprobados quedan estrictamente fuera del sitemap
   const combinations = await getListingCombinations();
-  const combinationUrls: MetadataRoute.Sitemap = combinations.map((comb) => ({
+  const validCombinations = combinations.filter(
+    (comb) => (comb.professional_count || 0) > 0
+  );
+  const combinationUrls: MetadataRoute.Sitemap = validCombinations.map((comb) => ({
     url: `${site.url}/${comb.listing_slug}/${comb.locality_slug}`,
     lastModified: new Date(),
     changeFrequency: "daily",

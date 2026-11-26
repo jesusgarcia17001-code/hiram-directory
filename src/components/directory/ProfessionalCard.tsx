@@ -83,9 +83,13 @@ export function ProfessionalCard({
         {/* Ciudad y Experiencia */}
         <div className="flex items-center gap-3 text-xs text-brand-text-muted flex-wrap">
           {professional.locality_name && (
-            <span className="flex items-center gap-1">
+            <Link
+              href={`/${categoryListingSlug}/${professional.locality_slug || "anzoategui"}`}
+              className="flex items-center gap-1 hover:text-brand-primary hover:underline transition-colors"
+              title={`Ver ${categoryListingSlug} en ${professional.locality_name}`}
+            >
               📍 {professional.locality_name}, Anzoátegui
-            </span>
+            </Link>
           )}
 
           {professional.experience_years !== null && professional.experience_years > 0 && (
