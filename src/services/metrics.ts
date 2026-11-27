@@ -113,16 +113,27 @@ export async function recordProfileVisit(professionalId: string): Promise<boolea
     const dedupeKey = `visit-${professionalId}-${visitorHash}`;
 
     const supabase = await createClient();
-    const { data: { user } } = await supabase.auth.getUser();
-    const actorId = user?.id || null;
+    const { data: authData } = await supabase.auth.getUser();
+    const actorId = authData?.user?.id || null;
 
     const adminClient = createAdminClient();
-    const { data: recorded, error } = await adminClient.rpc("record_profile_visit", {
+    let { data: recorded, error } = await adminClient.rpc("record_profile_visit", {
       p_professional_id: professionalId,
       p_visitor_hash: visitorHash,
       p_dedupe_key: dedupeKey,
       p_actor_id: actorId,
     });
+
+    // Compatibilidad retroactiva: si la base remota aún tiene la firma previa de 3 parámetros
+    if (error && error.message.includes("schema cache")) {
+      const fallback = await (adminClient.rpc as any)("record_profile_visit", {
+        p_professional_id: professionalId,
+        p_visitor_hash: visitorHash,
+        p_dedupe_key: dedupeKey,
+      });
+      recorded = fallback.data;
+      error = fallback.error;
+    }
 
     if (error) {
       console.error("Error al registrar visita:", error.message);
@@ -164,17 +175,29 @@ export async function revealProfessionalContact(
   )}`;
 
   const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
-  const actorId = user?.id || null;
+  const { data: authData } = await supabase.auth.getUser();
+  const actorId = authData?.user?.id || null;
 
   const adminClient = createAdminClient();
-  const { data, error } = await adminClient.rpc("reveal_professional_contact", {
+  let { data, error } = await adminClient.rpc("reveal_professional_contact", {
     p_professional_id: professionalId,
     p_channel: channel,
     p_visitor_hash: visitorHash,
     p_dedupe_key: dedupeKey,
     p_actor_id: actorId,
   });
+
+  // Compatibilidad retroactiva: si la base remota aún tiene la firma previa de 4 parámetros
+  if (error && error.message.includes("schema cache")) {
+    const fallback = await (adminClient.rpc as any)("reveal_professional_contact", {
+      p_professional_id: professionalId,
+      p_channel: channel,
+      p_visitor_hash: visitorHash,
+      p_dedupe_key: dedupeKey,
+    });
+    data = fallback.data;
+    error = fallback.error;
+  }
 
   if (error) {
     return {

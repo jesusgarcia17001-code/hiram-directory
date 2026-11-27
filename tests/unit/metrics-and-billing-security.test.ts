@@ -95,6 +95,34 @@ describe("Seguridad de Métricas, Facturación y HMAC", () => {
       expect(result.authorized).toBe(false);
       expect(result.message).toContain("METRICS_HMAC_SECRET");
     });
+
+    it("revealProfessionalContact debe reintentar con firma de 4 argumentos si la base remota no tiene p_actor_id en schema cache", async () => {
+      process.env.METRICS_HMAC_SECRET = "super-secret-hmac-key-for-tests-123456";
+      mockGetUser.mockResolvedValue({ data: { user: null }, error: null });
+
+      // Simular fallo inicial de schema cache (firma de 5 parámetros aún no aplicada)
+      mockRpc
+        .mockResolvedValueOnce({
+          data: null,
+          error: { message: "Could not find the function public.reveal_professional_contact(p_actor_id, ...) in the schema cache" },
+        })
+        .mockResolvedValueOnce({
+          data: {
+            authorized: true,
+            channel: "whatsapp",
+            phone: "+584141234567",
+            quota: { visits: 1, contacts: 1, visit_limit: 10, contact_limit: 5 },
+          },
+          error: null,
+        });
+
+      const { revealProfessionalContact } = await import("@/services/metrics");
+      const result = await revealProfessionalContact("prof-123", "whatsapp");
+
+      expect(mockRpc).toHaveBeenCalledTimes(2);
+      expect(result.authorized).toBe(true);
+      expect(result.phone).toBe("+584141234567");
+    });
   });
 
   describe("2. get_professional_metrics y control de acceso por p_actor_id", () => {
